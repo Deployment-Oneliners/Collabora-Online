@@ -6,7 +6,6 @@ say_hello() {
 say_hello
 
 # 0.a Install prerequisites for Nextcloud.
-satisfy_nextcloud_prereq
 # 0.b Verify prerequisites for Nextcloud are installed.
 
 # 1.a Install nextcloud
@@ -14,6 +13,10 @@ satisfy_nextcloud_prereq
 
 # 2.a Install tor
 # 2.b Verify tor is installed.
+satisfy_nextcloud_prereq
+
+# 3. Detect nextcloud configuration and modify it.
+setup_admin_account_on_snap_nextcloud "admin_name" "admin_pwd"
 
 # 3.a Detect tor configuration.
 # 3.b Modify tor configuration based on detected config.
