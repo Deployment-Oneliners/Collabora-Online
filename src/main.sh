@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-
+source src/install/prereq_nextcloud.sh
 say_hello() {
   echo "Hello world"
 }
 say_hello
 
 # 0.a Install prerequisites for Nextcloud.
+satisfy_nextcloud_prereq
 # 0.b Verify prerequisites for Nextcloud are installed.
 
 # 1.a Install nextcloud
