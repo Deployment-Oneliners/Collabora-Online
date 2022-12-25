@@ -28,7 +28,6 @@ Put your unit test files (with extension .bats) in folder: `/test/`
 
 ### Prerequisites
 
-
 (Re)-install the required submodules with:
 
 ```sh
