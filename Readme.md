@@ -1,18 +1,10 @@
 # Unit tested Shell/Bash code template
 
-[![Travis Build Status](https://img.shields.io/travis/a-t-0/shell_unit_testing_template.svg)](https://travis-ci.org/a-t-0/shell_unit_testing_template)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-You can use this as a starting point for your Bash/shell project with:
-
-- Unit testing
-- Code Coverage (100 %)
-- Pre-commit:
-  - shfmt (Auto-formatter)
-  - Shellcheck
-- Continuous Integration (GitLab CI)
-
-That way, you start your project in a clean, tested environment.
+Automatically installs your own, private, self-hosted calendar, accessible from
+anywhere, on your laptop and phone, with a single command, for free, over tor.
+No need to buy a domain name, no port-forwarding, no dns settings.
 
 ## Usage
 
@@ -73,6 +65,24 @@ chmod +x test.sh
 ```sh
 bashcov bats test
 ```
+
+## Objectives
+
+- [ ] Include arg parser to allow user to select between:
+  - [ ] Server
+  - [ ] Client
+  - [ ] Phone
+    installation.
+- [ ] Automatically set up Nextcloud calendar accessible over tor.
+- [ ] Add a local calendar viewing app like thunderbird to prevent having to wait
+  on the onion domain loading every   time you wanna access your calendar. add
+  torsocks to that local viewing app, such that it syncs automatically. Ensure
+  it does not sync locally, but over tor.
+- [ ] Automatically set up calendar sync over tor for android app.
+- [ ] Get API to add taskwarrior tasks.
+- [ ] Allow users to share an obfuscated calendar to enable people to make an
+  appointment with the user at an allowed slot, without seeing user activity.
+- [ ] Include travel times in calendar planner.
 
 ## How to help
 
