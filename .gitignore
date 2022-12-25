@@ -1,2 +1,4 @@
 coverage/*
-test/libs/*
+test/libs/bats
+test/libs/bats-assert
+test/libs/bats-support
