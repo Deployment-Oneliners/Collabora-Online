@@ -7,9 +7,10 @@
 source src/cli_logger.sh
 source src/helper.sh
 source src/config/configure_nextcloud.sh
-source src/install/prereq_nextcloud.sh
+source src/config/helper_tor_parsing.sh
 source src/install/install_apt.sh
 source src/install/install_snap.sh
+source src/install/prereq_nextcloud.sh
 
 # Get the positional arguments from the CLI.
 POSITIONAL_ARGS=()
@@ -22,29 +23,32 @@ nextcloud_pwd_flag='false'
 nextcloud_username_flag='false'
 configure_nextcloud_flag='false'
 
+# Tor configuration settings
+#Setup variables (change values if you need)
+
+TOR_SERVICE_DIR=/var/lib/tor
+NEXTCLOUD_HIDDEN_SERVICE_DIR=nextcloud
+NEXTCLOUD_HIDDEN_SERVICE_PATH="$TOR_SERVICE_DIR/$NEXTCLOUD_HIDDEN_SERVICE_DIR/"
+HIDDEN_SERVICE_PORT=8080
+LOCAL_NEXTCLOUD_PORT=81
+TORRC_FILEPATH=/etc/tor/torrc
+
 # Print CLI usage options
 print_usage() {
-  printf "\nDefault usage, write:"
-  printf "\nsrc/main.sh -nu <your GitHub username> -np <your Nextcloud password>\n                                       set up a Nextcloud server over tor."
+  printf "\n\nDefault usage, write:"
+  printf "\nsrc/main.sh -cn -ct -i -nu <your Nextcloud username> -np\n                                      to set up a Nextcloud server over tor.\n"
 
   printf "\nSupported options:"
-  # TODO: verify if the user can set the value of the GitHub personal access
-  # token, or whether the value is given/set by GitHub automatically.
-  # If it is given by GitHub automatically, change this into a boolean decision
-  # that indicates whether or not the user will set the commit build statuses
-  # on GitHub or not.
+  printf "\n-cn | --configure-nextcloud           to configure nextcloud with a default account."
+  printf "\n-ct | --configure-tor                 to configure Tor with to facilitate nextcloud access over Tor."
+  printf "\n-i | --install-tor-nextcloud          to install Tor and Nextcloud."
+  printf "\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                      to pass your Nextcloud username."
+  printf "\n-np | --nextcloud-password            to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
 
-  printf "\n\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                       to pass your GitHub username, to prevent having to wait until you can                                          enter it in the website."
-  printf "\n-np | --nextcloud-password                to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
-  printf "\n-cn | --configure-nextcloud               to configure nextcloud with a default account."
+  printf "\n\n\nNot yet supported:"
+  printf "\n-b | --boot                           to configure a cronjob to run tor at boot."
 
-  printf "\n\nNot yet supported:"
-  printf "\n-p | --prereq                          to verify prerequisites."
-  printf "\n-r | --nextcloud                       to do an installation of Nextcloud."
-  printf "\n-s | --create-domain                   to create a new onion domain."
-  printf "\n-s | --get-domain                      to get your current onion domain."
-
-  printf "\n\nyou can also combine the separate arguments in different orders, e.g. -nu -np.\n\n"
+  printf "\n\n\nyou can also combine the separate arguments in different orders, e.g. -nu -np.\n\n"
 }
 
 # Print the usage if no arguments are given.
@@ -102,6 +106,7 @@ if [[ -n $1 ]]; then
 fi
 
 # Set Nextcloud password without displaying it in terminal.
+# Used if the user passes: -np or --nextcloud-password to CLI.
 if [ "$nextcloud_pwd_flag" == "true" ]; then
   echo -n Nextcloud Password:
   read -r -s nextcloud_password
@@ -109,12 +114,14 @@ if [ "$nextcloud_pwd_flag" == "true" ]; then
   assert_is_non_empty_string "${nextcloud_password}"
 fi
 
-# Install Tor and Nextcloud if the user passes: -p or --prereq to CLI.
+# Install Tor and Nextcloud.
+# Used if the user passes: -i or --install-tor-nextcloud to CLI.
 if [ "$install_tor_nextcloud_flag" == "true" ]; then
   install_tor_and_nextcloud
 fi
 
 # Configure Nextcloud
+# Used if the user passes: -cn or --configure-nextcloud to CLI.
 if [ "$configure_nextcloud_flag" == "true" ]; then
 
   # Get the nextcloud username and password.
@@ -132,6 +139,7 @@ if [ "$configure_nextcloud_flag" == "true" ]; then
 fi
 
 # TODO: Ensure onion service and nextcloud start at boot.
+# Used if the user passes: -b or --boot to CLI.
 if [ "$setup_boot_script_flag" == "true" ]; then
   echo "TODO: setup_boot_script_flag"
 fi
@@ -145,8 +153,10 @@ fi
 # 7.b Verify calendar app goes over tor to Nextcloud on Android.
 
 # Configure tor to create and host onion domain for nextcloud.
+# Used if the user passes: -ct or --configure_tor to CLI.
 if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
   echo "TODO: configure_tor_for_nextcloud_flag"
+  configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
 fi
 
 # Start tor.

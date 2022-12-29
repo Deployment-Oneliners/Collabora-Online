@@ -26,6 +26,7 @@ start_and_monitor_tor_connection() {
 
       # Stop all previous tor processes.
       sudo killall tor
+      sleep 10 3>- &
 
       # Create new tor connection.
       connect_tor
