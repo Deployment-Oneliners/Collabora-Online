@@ -26,6 +26,7 @@ install_tor_nextcloud_flag='false'
 get_onion_flag='false'
 nextcloud_pwd_flag='false'
 nextcloud_username_flag='false'
+set_https_flag='false'
 setup_boot_script_flag='false'
 start_tor_flag='false'
 
@@ -47,6 +48,7 @@ print_usage() {
   printf "\nSupported options:"
   printf "\n-cn | --configure-nextcloud           to configure nextcloud with a default account."
   printf "\n-ct | --configure-tor                 to configure Tor with to facilitate nextcloud access over Tor."
+  printf "\n-h | --https                          to support HTTPS for .onion domain on server."
   printf "\n-i | --install-tor-nextcloud          to install Tor and Nextcloud."
   printf "\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                      to pass your Nextcloud username."
   printf "\n-np | --nextcloud-password            to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
@@ -76,6 +78,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -ct | --configure_tor)
       configure_tor_for_nextcloud_flag='true'
+      shift # past argument
+      ;;
+    -h | --https)
+      set_https_flag='true'
       shift # past argument
       ;;
     -i | --install-tor-nextcloud)
@@ -182,6 +188,12 @@ fi
 if [ "$get_onion_flag" == "true" ]; then
   sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
 fi
+
+if [ "$set_https_flag" == "true" ]; then
+  ONION_ADDRESS=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
+  setup_tor_ssl "$ONION_ADDRESS"
+fi
+
 # Start tor.
 if [ "$start_tor_flag" == "true" ]; then
   start_and_monitor_tor_connection
