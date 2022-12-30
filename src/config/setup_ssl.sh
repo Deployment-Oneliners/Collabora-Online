@@ -132,7 +132,8 @@ install_the_ca_cert_as_a_trusted_root_ca() {
   # TODO: Verify target directory exists.
   # On Debian & Derivatives:
   #- Move the CA certificate (`"$ca_private_key_filename"`) into `/usr/local/share/ca-certificates/ca.crt`.
-  cp "$ca_public_key_filename" "/usr/local/share/ca-certificates/$ca_public_key_filename"
+  # sudo cp ca.pem "/usr/local/share/ca-certificates/ca.pem"
+  sudo cp "$ca_public_key_filename" "/usr/local/share/ca-certificates/$ca_public_key_filename"
 
   # TODO: Verify target file exists.
 
@@ -147,9 +148,16 @@ add_certs_to_nextcloud() {
   local ssl_private_key_filename="$2"
   local merged_ca_ssl_cert_filename="$3"
 
+  # First copy the files into nextcloud.
+  # (see nextcloud.enable-https custom -h command).
+  #sudo cp ca.pem /var/snap/nextcloud/current/ca.pem
+  sudo cp "$ssl_public_key_filename" /var/snap/nextcloud/current/"$ssl_public_key_filename"
+  sudo cp "$ssl_private_key_filename" /var/snap/nextcloud/current/"$ssl_private_key_filename"
+  sudo cp "$merged_ca_ssl_cert_filename" /var/snap/nextcloud/current/"$merged_ca_ssl_cert_filename"
+
   # CLI sudo /snap/bin/nextcloud.enable-https custom Says:
   # sudo /snap/bin/nextcloud.enable-https custom <cert> <key> <chain>
-  sudo /snap/bin/nextcloud.enable-https custom "$ssl_public_key_filename" "$SSL_PRIVATE_KEY_FILENAME" "$merged_ca_ssl_cert_filename"
+  sudo /snap/bin/nextcloud.enable-https custom "$ssl_public_key_filename" "$ssl_private_key_filename" "$merged_ca_ssl_cert_filename"
 }
 
 delete_target_files() {

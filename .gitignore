@@ -4,3 +4,8 @@ ca-key.pem
 cert-key.pem
 cert.scr
 extfile.cnf
+ca.pem
+ca.srl
+cert.csr
+cert.pem
+fullchain.pem
