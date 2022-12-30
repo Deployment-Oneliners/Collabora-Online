@@ -34,18 +34,21 @@
 
 # Here is the list of certificates and their description:
 # First you create your own certificate authority.
-CA_PUBLIC_KEY_FILENAME="ca-key.pem"
-CA_PRIVATE_KEY_FILENAME="ca.pem"
+CA_PRIVATE_KEY_FILENAME="ca-key.pem"
+CA_PUBLIC_KEY_FILENAME="ca.pem"
 
 # Then you create a SSL certificate.
-SSL_PUBLIC_KEY_FILENAME="cert-key.pem"
-SSL_PRIVATE_KEY_FILENAME="cert.csr"
+SSL_PRIVATE_KEY_FILENAME="cert-key.pem"
 
 # Then create a sign-request (for your own CA to sign your own SSL certificate)
-CA_SIGN_SSL_CERT_REQUEST_FILENAME="extfile.cnf"
+CA_SIGN_SSL_CERT_REQUEST_FILENAME="cert.csr"
+SIGNED_DOMAINS_FILENAME="extfile.cnf"
 
 # Then create the signed public SSL cert.
-SIGNED_SSL_CERT_FILENAME="cert.pem"
+SSL_PUBLIC_KEY_FILENAME="cert.pem"
+
+# Then merge the CA and SLL cert into one.
+MERGED_CA_SSL_CERT_FILENAME="fullchain.pem"
 
 setup_tor_ssl() {
   local onion_address="$1"
@@ -55,10 +58,19 @@ setup_tor_ssl() {
   domains="DNS:$onion_address"
   echo "domains=$domains.end_without_space"
 
+  delete_target_files
+
   # Generate and apply certificate.
-  generate_ca_cert "$ca_private_key_filename" "$CA_PUBLIC_KEY_FILENAME"
-  generate_ssl_certificate "$CA_PUBLIC_KEY_FILENAME" "$CA_SIGN_SSL_CERT_REQUEST_FILENAME" "$SIGNED_SSL_CERT_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$SSL_PUBLIC_KEY_FILENAME" "$domains"
-  install_the_ca_cert_as_a_trusted_root_ca "$CA_PRIVATE_KEY_FILENAME"
+  generate_ca_cert "$CA_PRIVATE_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME"
+  generate_ssl_certificate "$CA_PUBLIC_KEY_FILENAME" "$CA_PRIVATE_KEY_FILENAME" "$CA_SIGN_SSL_CERT_REQUEST_FILENAME" "$SIGNED_DOMAINS_FILENAME" "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$domains"
+
+  verify_certificates "$CA_PUBLIC_KEY_FILENAME" "$SSL_PUBLIC_KEY_FILENAME"
+
+  merge_ca_and_ssl_certs "$SSL_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
+
+  install_the_ca_cert_as_a_trusted_root_ca "$CA_PUBLIC_KEY_FILENAME"
+
+  add_certs_to_nextcloud "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
 }
 
 generate_ca_cert() {
@@ -66,48 +78,61 @@ generate_ca_cert() {
   local ca_public_key_filename="$2"
 
   # Generate RSA
-  openssl genrsa -aes256 -out "$ca_public_key_filename" 4096
+  openssl genrsa -aes256 -out "$ca_private_key_filename" 4096
 
   # Generate a public CA Cert
-  openssl req -new -x509 -sha256 -days 365 -key "$ca_public_key_filename" -out "$ca_private_key_filename"
+  openssl req -new -x509 -sha256 -days 365 -key "$ca_private_key_filename" -out "$ca_public_key_filename"
 }
 
 generate_ssl_certificate() {
   local ca_public_key_filename="$1"
-  local ca_sign_ssl_cert_request_filename="$2"
-  local signed_ssl_cert_filename="$3"
-  local ssl_private_key_filename="$4"
+  local ca_private_key_filename="$2"
+  local ca_sign_ssl_cert_request_filename="$3"
+  local signed_domains_filename="$4"
   local ssl_public_key_filename="$5"
-  local domains="$6"
+  local ssl_private_key_filename="$6"
+  local domains="$7"
   # Example supported domains:
   # DNS:your-dns.record,IP:257.10.10.1
 
   # Create a RSA key
-  openssl genrsa -out "$ssl_public_key_filename" 4096
+  openssl genrsa -out "$ssl_private_key_filename" 4096
 
   # Create a Certificate Signing Request (CSR)
-  openssl req -new -sha256 -subj "/CN=yourcn" -key "$ssl_public_key_filename" -out "$ssl_private_key_filename"
+  openssl req -new -sha256 -subj "/CN=yourcn" -key "$ssl_private_key_filename" -out "$ca_sign_ssl_cert_request_filename"
+
   # Create a `extfile` with all the alternative names
-  echo "subjectAltName=$domains" >>"$ca_sign_ssl_cert_request_filename"
+  echo "subjectAltName=$domains" >>"$signed_domains_filename"
 
   # optional
   #echo extendedKeyUsage = serverAuth >> "$ca_sign_ssl_cert_request_filename"
 
-  # Create the certificate
-  openssl x509 -req -sha256 -days 365 -in "$ssl_private_key_filename" -CA "$ca_private_key_filename" -CAkey "$ca_public_key_filename" -out "$signed_ssl_cert_filename" -extfile "$ca_sign_ssl_cert_request_filename" -CAcreateserial
+  # Create the public SSL certificate.
+  openssl x509 -req -sha256 -days 365 -in "$ca_sign_ssl_cert_request_filename" -CA "$ca_public_key_filename" -CAkey "$ca_private_key_filename" -out "$ssl_public_key_filename" -extfile "$signed_domains_filename" -CAcreateserial
 }
 
 verify_certificates() {
-  openssl verify -CAfile "$ca_private_key_filename" -verbose "$signed_ssl_cert_filename"
+  local ca_public_key_filename="$1"
+  local ssl_public_key_filename="$2"
+  openssl verify -CAfile "$ca_public_key_filename" -verbose "$ssl_public_key_filename"
+}
+
+merge_ca_and_ssl_certs() {
+  local ssl_public_key_filename="$1"
+  local ca_public_key_filename="$2"
+  local merged_ca_ssl_cert_filename="$3"
+
+  cat "$ssl_public_key_filename" >"$merged_ca_ssl_cert_filename"
+  cat "$ca_public_key_filename" >>"$merged_ca_ssl_cert_filename"
 }
 
 install_the_ca_cert_as_a_trusted_root_ca() {
-  local ca_private_key_filename="$1"
+  local ca_public_key_filename="$1"
 
   # TODO: Verify target directory exists.
   # On Debian & Derivatives:
   #- Move the CA certificate (`"$ca_private_key_filename"`) into `/usr/local/share/ca-certificates/ca.crt`.
-  cp "$ca_private_key_filename" "/usr/local/share/ca-certificates/$ca_private_key_filename"
+  cp "$ca_public_key_filename" "/usr/local/share/ca-certificates/$ca_public_key_filename"
 
   # TODO: Verify target file exists.
 
@@ -115,6 +140,27 @@ install_the_ca_cert_as_a_trusted_root_ca() {
 
   # Update the Cert Store with:
   sudo update-ca-certificates
+}
+
+add_certs_to_nextcloud() {
+  local ssl_public_key_filename="$1"
+  local ssl_private_key_filename="$2"
+  local merged_ca_ssl_cert_filename="$3"
+
+  # CLI sudo /snap/bin/nextcloud.enable-https custom Says:
+  # sudo /snap/bin/nextcloud.enable-https custom <cert> <key> <chain>
+  sudo /snap/bin/nextcloud.enable-https custom "$ssl_public_key_filename" "$SSL_PRIVATE_KEY_FILENAME" "$merged_ca_ssl_cert_filename"
+}
+
+delete_target_files() {
+  rm "$CA_PRIVATE_KEY_FILENAME"
+  rm "$CA_PUBLIC_KEY_FILENAME"
+  rm "$SSL_PRIVATE_KEY_FILENAME"
+  rm "$CA_SIGN_SSL_CERT_REQUEST_FILENAME"
+  rm "$SIGNED_DOMAINS_FILENAME"
+  rm "$SSL_PUBLIC_KEY_FILENAME"
+  rm "$MERGED_CA_SSL_CERT_FILENAME"
+  sudo rm "/usr/local/share/ca-certificates/$CA_PUBLIC_KEY_FILENAME"
 }
 
 # On Android

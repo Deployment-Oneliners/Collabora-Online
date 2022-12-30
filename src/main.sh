@@ -9,6 +9,7 @@ source src/helper.sh
 source src/config/configure_nextcloud.sh
 source src/config/configure_tor.sh
 source src/config/helper_tor_parsing.sh
+source src/config/setup_ssl.sh
 source src/install/install_apt.sh
 source src/install/install_snap.sh
 source src/install/prereq_nextcloud.sh
@@ -52,6 +53,7 @@ print_usage() {
   printf "\n-i | --install-tor-nextcloud          to install Tor and Nextcloud."
   printf "\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                      to pass your Nextcloud username."
   printf "\n-np | --nextcloud-password            to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
+  printf "\n-s | --start-tor                      to start tor."
 
   printf "\n\n\nNot yet supported:"
   printf "\n-b | --boot                           to configure a cronjob to run tor at boot."
