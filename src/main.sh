@@ -171,6 +171,11 @@ fi
 # Used if the user passes: -ct or --configure_tor to CLI.
 if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
   configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
+
+  # TODO: ensure onion address is created before adding it to Nextcloud.
+  # This can be done by starting tor for the first time.
+  ONION_ADDRESS=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
+  add_onion_to_nextcloud_trusted_domain "$ONION_ADDRESS"
 fi
 
 # Used if the user passes: -o or --get-onion to CLI.
