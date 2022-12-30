@@ -7,10 +7,12 @@
 source src/cli_logger.sh
 source src/helper.sh
 source src/config/configure_nextcloud.sh
+source src/config/configure_tor.sh
 source src/config/helper_tor_parsing.sh
 source src/install/install_apt.sh
 source src/install/install_snap.sh
 source src/install/prereq_nextcloud.sh
+source src/run_tor/ensure_tor_runs.sh
 
 # Get the positional arguments from the CLI.
 POSITIONAL_ARGS=()
@@ -18,10 +20,14 @@ POSITIONAL_ARGS=()
 # Specify default argument values.
 default_nextcloud_username="some_username"
 default_nextcloud_password="some_password"
-nextcloud_port=81
+configure_nextcloud_flag='false'
+configure_tor_for_nextcloud_flag='false'
+install_tor_nextcloud_flag='false'
+get_onion_flag='false'
 nextcloud_pwd_flag='false'
 nextcloud_username_flag='false'
-configure_nextcloud_flag='false'
+setup_boot_script_flag='false'
+start_tor_flag='false'
 
 # Tor configuration settings
 #Setup variables (change values if you need)
@@ -72,6 +78,10 @@ while [[ $# -gt 0 ]]; do
       configure_tor_for_nextcloud_flag='true'
       shift # past argument
       ;;
+    -i | --install-tor-nextcloud)
+      install_tor_nextcloud_flag='true'
+      shift # past argument
+      ;;
     -nu | --nextcloud-username)
       nextcloud_username_flag='true'
       nextcloud_username="$2"
@@ -84,8 +94,13 @@ while [[ $# -gt 0 ]]; do
       #nextcloud_pwd="$2" # Don't allow vissibly typing pwd in command line.
       shift # past argument
       ;;
-    -i | --install-tor-nextcloud)
-      install_tor_nextcloud_flag='true'
+
+    -o | --get-onion)
+      get_onion_flag='true'
+      shift # past argument
+      ;;
+    -s | --start-tor)
+      start_tor_flag='true'
       shift # past argument
       ;;
     -*)
@@ -135,7 +150,7 @@ if [ "$configure_nextcloud_flag" == "true" ]; then
   fi
 
   setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
-  set_nextcloud_port "$nextcloud_port"
+  set_nextcloud_port "$LOCAL_NEXTCLOUD_PORT"
 fi
 
 # TODO: Ensure onion service and nextcloud start at boot.
@@ -155,8 +170,14 @@ fi
 # Configure tor to create and host onion domain for nextcloud.
 # Used if the user passes: -ct or --configure_tor to CLI.
 if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
-  echo "TODO: configure_tor_for_nextcloud_flag"
   configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
 fi
 
+# Used if the user passes: -o or --get-onion to CLI.
+if [ "$get_onion_flag" == "true" ]; then
+  sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
+fi
 # Start tor.
+if [ "$start_tor_flag" == "true" ]; then
+  start_and_monitor_tor_connection
+fi

@@ -18,7 +18,7 @@ start_and_monitor_tor_connection() {
     # Get tor connection status
     tor_status_outside=$(get_tor_status)
     echo "tor_status_outside=$tor_status_outside" >&2
-    sleep 10 3>- &
+    sleep 10
 
     # Reconnect tor if the system is disconnected.
     if [[ "$tor_status_outside" != *"Congratulations"* ]]; then
@@ -26,7 +26,7 @@ start_and_monitor_tor_connection() {
 
       # Stop all previous tor processes.
       sudo killall tor
-      sleep 10 3>- &
+      sleep 10
 
       # Create new tor connection.
       connect_tor
