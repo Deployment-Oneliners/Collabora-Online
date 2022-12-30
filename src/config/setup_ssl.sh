@@ -55,7 +55,7 @@ setup_tor_ssl() {
 
   # Create domains accepted by certificate.
   local domains
-  domains="DNS:$onion_address"
+  domains="DNS:$onion_address,IP:127.0.0.1"
   echo "domains=$domains.end_without_space"
 
   delete_target_files
@@ -149,6 +149,7 @@ add_certs_to_nextcloud() {
   local merged_ca_ssl_cert_filename="$3"
 
   # First copy the files into nextcloud.
+  # Source: https://github.com/nextcloud-snap/nextcloud-snap/issues/256
   # (see nextcloud.enable-https custom -h command).
   #sudo cp ca.pem /var/snap/nextcloud/current/ca.pem
   sudo cp "$ssl_public_key_filename" /var/snap/nextcloud/current/"$ssl_public_key_filename"
@@ -156,8 +157,7 @@ add_certs_to_nextcloud() {
   sudo cp "$merged_ca_ssl_cert_filename" /var/snap/nextcloud/current/"$merged_ca_ssl_cert_filename"
 
   # CLI sudo /snap/bin/nextcloud.enable-https custom Says:
-  # sudo /snap/bin/nextcloud.enable-https custom <cert> <key> <chain>
-  sudo /snap/bin/nextcloud.enable-https custom "$ssl_public_key_filename" "$ssl_private_key_filename" "$merged_ca_ssl_cert_filename"
+  sudo /snap/bin/nextcloud.enable-https custom "/var/snap/nextcloud/current/$ssl_public_key_filename" "/var/snap/nextcloud/current/$ssl_private_key_filename" "/var/snap/nextcloud/current/$merged_ca_ssl_cert_filename"
 }
 
 delete_target_files() {
@@ -169,6 +169,10 @@ delete_target_files() {
   rm "$SSL_PUBLIC_KEY_FILENAME"
   rm "$MERGED_CA_SSL_CERT_FILENAME"
   sudo rm "/usr/local/share/ca-certificates/$CA_PUBLIC_KEY_FILENAME"
+  sudo rm "/var/snap/nextcloud/current/$SSL_PUBLIC_KEY_FILENAME"
+  sudo rm "/var/snap/nextcloud/current/$SSL_PRIVATE_KEY_FILENAME"
+  sudo rm "/var/snap/nextcloud/current/$MERGED_CA_SSL_CERT_FILENAME"
+
 }
 
 # On Android
