@@ -74,3 +74,7 @@ add_onion_to_nextcloud_trusted_domain() {
   # TODO: verify output:
   sudo /snap/bin/nextcloud.occ config:system:get trusted_domains
 }
+
+enable_calendar_app() {
+  sudo /snap/bin/nextcloud.occ app:install calendar
+}

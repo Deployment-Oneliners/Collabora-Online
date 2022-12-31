@@ -1,5 +1,7 @@
 coverage/*
 sudo_tor.out
+ca.crt
+ca-cert.crt
 ca-key.pem
 cert-key.pem
 cert.scr

@@ -36,6 +36,8 @@
 # First you create your own certificate authority.
 CA_PRIVATE_KEY_FILENAME="ca-key.pem"
 CA_PUBLIC_KEY_FILENAME="ca.pem"
+# Same file as ca.pem except different file extension and content.
+CA_PUBLIC_CERT_FILENAME="ca.crt"
 
 # Then you create a SSL certificate.
 SSL_PRIVATE_KEY_FILENAME="cert-key.pem"
@@ -55,7 +57,12 @@ setup_tor_ssl() {
 
   # Create domains accepted by certificate.
   local domains
-  domains="DNS:$onion_address,IP:127.0.0.1"
+  #domains="DNS:$onion_address,IP:127.0.0.1"
+  #domains="DNS:localhost,IP:$onion_address" # IP onion does not work
+  #domains="DNS:*.$onion_address" # Does not work.
+  #domains="DNS:$onion_address"
+  #domains="DNS:localhost" # Works.
+  domains="DNS:localhost,DNS:$onion_address"
   echo "domains=$domains.end_without_space"
 
   delete_target_files
@@ -68,7 +75,7 @@ setup_tor_ssl() {
 
   merge_ca_and_ssl_certs "$SSL_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
 
-  install_the_ca_cert_as_a_trusted_root_ca "$CA_PUBLIC_KEY_FILENAME"
+  install_the_ca_cert_as_a_trusted_root_ca "$CA_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_CERT_FILENAME"
 
   add_certs_to_nextcloud "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
 }
@@ -128,12 +135,19 @@ merge_ca_and_ssl_certs() {
 
 install_the_ca_cert_as_a_trusted_root_ca() {
   local ca_public_key_filename="$1"
+  local ca_public_cert_filename="$2"
+
+  # The file in the ca-certificates dir must be of extension .crt:
+  openssl x509 -outform der -in "$ca_public_key_filename" -out "$ca_public_cert_filename"
+
+  # First remove any old cert if it existed.
+  sudo rm "/usr/local/share/ca-certificates/$ca_public_cert_filename"
+  sudo update-ca-certificates
 
   # TODO: Verify target directory exists.
   # On Debian & Derivatives:
   #- Move the CA certificate (`"$ca_private_key_filename"`) into `/usr/local/share/ca-certificates/ca.crt`.
-  # sudo cp ca.pem "/usr/local/share/ca-certificates/ca.pem"
-  sudo cp "$ca_public_key_filename" "/usr/local/share/ca-certificates/$ca_public_key_filename"
+  sudo cp "$ca_public_cert_filename" "/usr/local/share/ca-certificates/$ca_public_cert_filename"
 
   # TODO: Verify target file exists.
 
@@ -162,6 +176,7 @@ add_certs_to_nextcloud() {
 
 delete_target_files() {
   rm "$CA_PRIVATE_KEY_FILENAME"
+  rm "$CA_PUBLIC_CERT_FILENAME"
   rm "$CA_PUBLIC_KEY_FILENAME"
   rm "$SSL_PRIVATE_KEY_FILENAME"
   rm "$CA_SIGN_SSL_CERT_REQUEST_FILENAME"
@@ -169,6 +184,7 @@ delete_target_files() {
   rm "$SSL_PUBLIC_KEY_FILENAME"
   rm "$MERGED_CA_SSL_CERT_FILENAME"
   sudo rm "/usr/local/share/ca-certificates/$CA_PUBLIC_KEY_FILENAME"
+  sudo rm "/usr/local/share/ca-certificates/$CA_PUBLIC_CERT_FILENAME"
   sudo rm "/var/snap/nextcloud/current/$SSL_PUBLIC_KEY_FILENAME"
   sudo rm "/var/snap/nextcloud/current/$SSL_PRIVATE_KEY_FILENAME"
   sudo rm "/var/snap/nextcloud/current/$MERGED_CA_SSL_CERT_FILENAME"
@@ -176,8 +192,8 @@ delete_target_files() {
 }
 
 # On Android
-# The exact steps vary device-to-device, but here is a generalised guide:
 # 1. Open Phone Settings
+# The exact steps vary device-to-device, but here is a generalised guide:
 # 2. Locate `Encryption and Credentials` section. It is generally found under `Settings > Security > Encryption and Credentials`
 # 3. Choose `Install a certificate`
 # 4. Choose `CA Certificate`

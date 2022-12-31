@@ -159,6 +159,7 @@ if [ "$configure_nextcloud_flag" == "true" ]; then
 
   setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
   set_nextcloud_port "$LOCAL_NEXTCLOUD_PORT"
+  enable_calendar_app
 fi
 
 # TODO: Ensure onion service and nextcloud start at boot.
