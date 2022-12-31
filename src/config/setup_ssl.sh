@@ -57,11 +57,7 @@ setup_tor_ssl() {
 
   # Create domains accepted by certificate.
   local domains
-  #domains="DNS:$onion_address,IP:127.0.0.1"
-  #domains="DNS:localhost,IP:$onion_address" # IP onion does not work
-  #domains="DNS:*.$onion_address" # Does not work.
-  #domains="DNS:$onion_address" # Does not work.
-  domains="DNS:localhost,DNS:$onion_address" # Works for localhost
+  domains="DNS:localhost,DNS:$onion_address"
   echo "domains=$domains.end_without_space"
 
   delete_target_files
