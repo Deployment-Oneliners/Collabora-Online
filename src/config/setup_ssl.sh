@@ -55,6 +55,9 @@ MERGED_CA_SSL_CERT_FILENAME="fullchain.pem"
 setup_tor_ssl() {
   local onion_address="$1"
 
+  # TODO: if files already exist, perform double check on whether user wants to
+  # overwrite the files.
+
   # Create domains accepted by certificate.
   local domains
   domains="DNS:localhost,DNS:$onion_address"
@@ -73,6 +76,9 @@ setup_tor_ssl() {
   install_the_ca_cert_as_a_trusted_root_ca "$CA_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_CERT_FILENAME"
 
   add_certs_to_nextcloud "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
+
+  copy_file "$CA_PUBLIC_KEY_FILENAME" "$ROOT_CA_PEM_PATH"
+
 }
 
 generate_ca_cert() {

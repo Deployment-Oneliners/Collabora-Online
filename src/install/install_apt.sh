@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-source src/cli_logger.sh
-
 # Usage: ensure_apt_pkg <PKG> <APT_UPDATE>
 # Takes the name of a package to install if not already installed,
 # and optionally a 1 if apt update should be run after installation
@@ -44,7 +42,7 @@ ensure_apt_pkg() {
     # Since apt repositories are time stamped
     # we need to enforce the time is set correctly before doing
     # an update - this can easily fail in virtual machines, otherwise
-    force_update_of_time
+    # TODO: fix:force_update_of_time
     sudo apt update
   fi
 }

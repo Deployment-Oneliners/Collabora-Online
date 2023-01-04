@@ -53,8 +53,7 @@ verify_nextcloud_creds_are_set_correct() {
 
 #Configure the NextCloud port to be used.
 set_nextcloud_port() {
-  local nextcloud_port
-  nextcloud_port="$1"
+  local nextcloud_port="$1"
 
   yellow_msg "\nConfiguring NextCloud, please wait...\n"
   sudo snap set nextcloud ports.http="${nextcloud_port}"
