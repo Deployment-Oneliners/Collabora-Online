@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source src/config/configure_orbot_app.sh
+source src/uninstall/uninstall_apk.sh
 
 #######################################
 # Installs an Android app from a URL onto a connected device.
@@ -46,7 +48,12 @@ install_android_app() {
 
   # Install app if it is not yet installed.
   if [ "$app_exists" != "package:$android_app_name" ]; then
-    adb install -r"$apk_filename"
+    adb install "$apk_filename"
+  else
+    echo "Removing app."
+    remove_android_app "$android_app_name"
+    echo "Re-installing app."
+    adb install "$apk_filename"
   fi
 
   # Verify that the app was installed.
@@ -55,6 +62,12 @@ install_android_app() {
     echo "error, app does not exist."
     return 9
   fi
+
+  # Configure orbot
+  #configure_orbot "$apk_filename" "$expected_md5" "$android_app_name" "$app_url"
+  sleep 5
+  start_orbot_service "$android_app_name"
+  ask_user_orbot_is_started_successfully
 
   return 0
 }
@@ -111,8 +124,6 @@ download_apk_file_from_link() {
   fi
 
 }
-
-# Configure orbot.
 
 # Configure Davx 5
 
