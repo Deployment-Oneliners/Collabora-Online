@@ -11,4 +11,4 @@ ca.srl
 cert.csr
 cert.pem
 fullchain.pem
-orbot.apk
+*.apk

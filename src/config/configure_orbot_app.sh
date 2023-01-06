@@ -18,8 +18,8 @@
 start_orbot_service() {
   local android_app_name="$1"
 
-  adb shell monkey -p "$android_app_name" 1
-  sleep 3
+  adb shell monkey -p "$android_app_name" 1 &>/dev/null
+  sleep 5
 
   # TODO: verify Orbot is launched.
 
@@ -27,17 +27,23 @@ start_orbot_service() {
 
   # Set VPN permission.
   adb shell input keyevent 20 # Arrow Down
+  sleep 1
   adb shell input keyevent 22 # Arrow Right
+  sleep 1
   adb shell input keyevent 66 # Enter
-
   sleep 2
 
   # Proceed to main screen.
   adb shell input keyevent 22 # Arrow Right
+  sleep 1
   adb shell input keyevent 22 # Arrow Right
+  sleep 1
   adb shell input keyevent 22 # Arrow Right
+  sleep 1
   adb shell input keyevent 22 # Arrow Right
+  sleep 1
   adb shell input keyevent 66 # Enter
+  sleep 1
 
   # TODO: verify orbot is connected to tor.
 }

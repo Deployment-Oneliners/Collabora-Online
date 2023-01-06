@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
-source src/config/configure_orbot_app.sh
-source src/uninstall/uninstall_apk.sh
+
+# bash -c 'source src/install/one_file.sh && setup_orbot_apk'
+setup_orbot_apk() {
+  local apk_filename="orbot.apk"
+  local expected_md5="e9ed7a6386308d2995c2c1b2185e5ef0"
+  local android_app_name="org.torproject.android"
+  local app_url="https://github.com/guardianproject/orbot/releases/download/16.6.4-RC-1-tor.0.4.7.11/Orbot-16.6.4-RC-1-tor.0.4.7.11-fullperm-universal-release.apk"
+
+  # (Re)-install orbot.
+  install_android_app "$apk_filename" "$expected_md5" "$android_app_name" "$app_url"
+
+  # Configure orbot.
+  sleep 5
+  start_orbot_service "$android_app_name"
+  ask_user_orbot_is_started_successfully
+}
 
 #######################################
 # Installs an Android app from a URL onto a connected device.
@@ -63,12 +77,6 @@ install_android_app() {
     return 9
   fi
 
-  # Configure orbot
-  #configure_orbot "$apk_filename" "$expected_md5" "$android_app_name" "$app_url"
-  sleep 5
-  start_orbot_service "$android_app_name"
-  ask_user_orbot_is_started_successfully
-
   return 0
 }
 
@@ -125,7 +133,90 @@ download_apk_file_from_link() {
 
 }
 
-# Configure Davx 5
+remove_android_app() {
+  local android_app_name="$1"
 
-# https://github.com/guardianproject/orbot/releases/download/16.6.4-RC-1-tor.0.4.7.11/Orbot-16.6.4-RC-1-tor.0.4.7.11-fullperm-universal-release.apk
-# https://github.com/bitfireAT/davx5-ose/releases/download/v4.2.6-ose/davx5-ose-4.2.6-ose-release.apk
+  # Check if adb is available and if a device is connected.
+  if ! command -v adb &>/dev/null || ! adb devices | grep -q "^[^*]*device$"; then
+    return 7
+  fi
+
+  # Check if the app is installed.
+  local app_exists
+  app_exists=$(adb shell pm list packages "$android_app_name")
+
+  # Install app if it is not yet installed.
+  if [ "$app_exists" == "package:$android_app_name" ]; then
+    adb uninstall "org.torproject.android"
+    sleep 5
+  fi
+
+  # Verify that the app was installed.
+  app_exists=$(adb shell pm list packages "$android_app_name")
+  if [ "$app_exists" == "package:$android_app_name" ]; then
+    echo "Error, app still exists."
+    return 9
+  fi
+
+  return 0
+}
+
+#######################################
+# Manually sends keystrokes start the Tor service of orbot.
+#
+# Local variables:
+#
+# Globals:
+#  None.
+# Arguments:
+#
+# Returns:
+#  0 if the service was started without error.
+#  1 if the BIND_VPN_SERVICE permission was not granted.
+#  5 if an unknown error is thrown.
+#  None.
+#######################################
+start_orbot_service() {
+  local android_app_name="$1"
+
+  adb shell monkey -p "$android_app_name" 1 &>/dev/null
+  sleep 5
+
+  # TODO: verify Orbot is launched.
+
+  # TODO: Verify Orbot requests for vpn permission.
+
+  # Set VPN permission.
+  adb shell input keyevent 20 # Arrow Down
+  sleep 1
+  adb shell input keyevent 22 # Arrow Right
+  sleep 1
+  adb shell input keyevent 66 # Enter
+  sleep 2
+
+  # Proceed to main screen.
+  adb shell input keyevent 22 # Arrow Right
+  sleep 1
+  adb shell input keyevent 22 # Arrow Right
+  sleep 1
+  adb shell input keyevent 22 # Arrow Right
+  sleep 1
+  adb shell input keyevent 22 # Arrow Right
+  sleep 1
+  adb shell input keyevent 66 # Enter
+  sleep 1
+
+  # TODO: verify orbot is connected to tor.
+}
+
+ask_user_orbot_is_started_successfully() {
+  local prompt
+  read -r -d '' prompt <<EndOfMessage
+Did orbot start successfully, and is the Onion yellow?
+
+If not, please manually start orbot, grant it the permissions it requests, and
+press enter.
+EndOfMessage
+  echo ""
+  read -r -p "$prompt"
+}
