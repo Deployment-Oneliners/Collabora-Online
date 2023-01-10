@@ -6,6 +6,7 @@ print_usage() {
   printf "\nsrc/main.sh -cn -ct -i -nu <your Nextcloud username> -np\n                                      to set up a Nextcloud server over tor.\n"
 
   printf "\nSupported options:"
+  printf "\n-ar | --android-reinstall <appname_0,app_name1,app_name2> \n                                      to remove and reinstall android apps."
   printf "\n-cn | --configure-nextcloud           to configure nextcloud with a default account."
   printf "\n-ct | --configure-tor                 to configure Tor with to facilitate nextcloud access over Tor."
   printf "\n-h | --https                          to support HTTPS for .onion domain on server."
@@ -15,6 +16,7 @@ print_usage() {
   printf "\n-s | --start-tor                      to start tor."
 
   printf "\n\n\nNot yet supported:"
+  printf "\n-ar | --android-reinstall <appname_0,app_name1,app_name2> \n                                      to configure android apps to sync with Nextcloud."
   printf "\n-b | --boot                           to configure a cronjob to run tor at boot."
 
   printf "\n\n\nyou can also combine the separate arguments in different orders, e.g. -nu -np.\n\n"

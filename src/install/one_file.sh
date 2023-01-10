@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# bash -c 'source src/install/one_file.sh && setup_orbot_apk'
-setup_orbot_apk() {
+# bash -c 'source src/install/one_file.sh && re_install_orbot_apk'
+re_install_orbot_apk() {
   local apk_filename="orbot.apk"
   local expected_md5="e9ed7a6386308d2995c2c1b2185e5ef0"
   local android_app_name="org.torproject.android"

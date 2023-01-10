@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-source src/config/configure_orbot_app.sh
-source src/install/install_apk.sh
 
-# bash -c 'source src/install/install_android_apps.sh && setup_orbot_apk'
-setup_orbot_apk() {
+re_install_orbot_apk() {
   local apk_filename="orbot.apk"
   local expected_md5="e9ed7a6386308d2995c2c1b2185e5ef0"
   local android_app_name="org.torproject.android"
@@ -13,13 +10,12 @@ setup_orbot_apk() {
   install_android_app "$apk_filename" "$expected_md5" "$android_app_name" "$app_url"
 
   # Configure orbot.
-  sleep 5
-  start_orbot_service "$android_app_name"
-  ask_user_orbot_is_started_successfully
+  #sleep 5
+  #start_orbot_service "$android_app_name"
+  #ask_user_orbot_is_started_successfully
 }
 
-# bash -c 'source src/install/install_android_apps.sh && setup_davx5_apk'
-setup_davx5_apk() {
+re_install_davx5_apk() {
   local apk_filename="davx5.apk"
   local expected_md5="0186db8d28dc1166b40f8a1479343cf0"
   local android_app_name="at.bitfire.davdroid"
