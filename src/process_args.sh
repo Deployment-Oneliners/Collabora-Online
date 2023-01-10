@@ -13,6 +13,7 @@ source src/config/helper_tor_parsing.sh
 source src/config/setup_ssl.sh
 source src/helper.sh
 source src/install/install_android_apps.sh
+source src/install/install_apk.sh
 source src/install/install_apt.sh
 source src/install/install_pip.sh
 source src/install/install_snap.sh
