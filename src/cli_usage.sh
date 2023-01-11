@@ -13,6 +13,7 @@ print_usage() {
   printf "\n-i | --install-tor-nextcloud          to install Tor and Nextcloud."
   printf "\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                      to pass your Nextcloud username."
   printf "\n-np | --nextcloud-password            to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
+  printf "\n-o | --get-onion                      to show your private .onion url."
   printf "\n-s | --start-tor                      to start tor."
 
   printf "\n\n\nNot yet supported:"
