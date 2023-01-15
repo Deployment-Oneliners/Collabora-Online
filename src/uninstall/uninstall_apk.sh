@@ -16,7 +16,7 @@ remove_android_app() {
 
   # Install app if it is not yet installed.
   if [ "$app_exists" == "package:$android_app_name" ]; then
-    adb uninstall "org.torproject.android"
+    adb uninstall "$android_app_name"
     sleep 5
   fi
 
