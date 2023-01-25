@@ -14,6 +14,17 @@ The main code can be ran with:
 src/main.sh
 ```
 
+## Example Setup
+
+This is when the installation was already done and you would like to retry it.
+
+```
+src/main.sh -un # uninstall Nextcloud
+src/main.sh -i
+src/main.sh -cn
+src/main.sh -h # To setup tor.
+```
+
 ## Testing
 
 Put your unit test files (with extension .bats) in folder: `/test/`

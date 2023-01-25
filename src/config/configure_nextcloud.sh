@@ -19,6 +19,7 @@ setup_admin_account_on_snap_nextcloud() {
 
   printf "\nApplying credentials values to NextCloud admin account...\n"
 
+  echo "Only do this when it is not yet done."
   local output
   output=$(sudo /snap/bin/nextcloud.manual-install "${admin_username}" "${admin_pwd}")
   sleep 5
@@ -55,10 +56,18 @@ verify_nextcloud_creds_are_set_correct() {
 set_nextcloud_port() {
   local nextcloud_port="$1"
 
-  yellow_msg "\nConfiguring NextCloud, please wait...\n"
+  yellow_msg "\nConfiguring NextCloud:${nextcloud_port}, please wait...\n"
   sudo snap set nextcloud ports.http="${nextcloud_port}"
-
   # TODO: verify nextcloud port is set successfully.
+
+  #The website should display:
+  #Secure Connection Failed
+
+  #An error occurred during a connection to localhost:81. SSL received a
+  # record that exceeded the maximum permissible length.
+
+  # Error code: SSL_ERROR_RX_RECORD_TOO_LONG
+
 }
 
 add_onion_to_nextcloud_trusted_domain() {

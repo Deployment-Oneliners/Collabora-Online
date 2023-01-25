@@ -4,6 +4,7 @@
 
 source src/cli_usage.sh
 source src/process_args.sh
+source src/uninstall/uninstaller.sh
 
 # Get the positional arguments from the CLI.
 POSITIONAL_ARGS=()
@@ -26,6 +27,9 @@ nextcloud_username_flag='false'
 set_https_flag='false'
 setup_boot_script_flag='false'
 start_tor_flag='false'
+
+uninstall_nextcloud_flag='false'
+uninstall_tor_flag='false'
 
 # Specify apps that are supported in this project.
 # shellcheck disable=SC2034
@@ -105,6 +109,14 @@ while [[ $# -gt 0 ]]; do
       start_tor_flag='true'
       shift # past argument
       ;;
+    -un | --uninstall-nextcloud)
+      uninstall_nextcloud_flag='true'
+      shift # past argument
+      ;;
+    -ut | --uninstall-tor)
+      uninstall_tor_flag='true'
+      shift # past argument
+      ;;
     -*)
       echo "Unknown option $1"
       print_usage
@@ -130,3 +142,5 @@ configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_ser
 
 reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"
 configure_android_apps "$android_app_configure_flag" "$configure_app_list"
+
+uninstaller "$uninstall_nextcloud_flag" "$uninstall_tor_flag"
