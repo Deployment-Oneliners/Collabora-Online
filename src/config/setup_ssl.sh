@@ -52,6 +52,9 @@ SSL_PUBLIC_KEY_FILENAME="cert.pem"
 # Then merge the CA and SLL cert into one.
 MERGED_CA_SSL_CERT_FILENAME="fullchain.pem"
 
+# Firefox CA folder path:
+FIREFOX_CA_DIR='nextcloud_ssl'
+
 setup_tor_ssl() {
   local onion_address="$1"
 
@@ -225,9 +228,11 @@ make_self_signed_root_cert_trusted_on_ubuntu() {
   ensure_apt_pkg "ca-certificates"
 
   # TODO: add to remove in uninstallation.
-  sudo mkdir -p /usr/local/share/ca-certificates/nextcloud_ssl
+  sudo mkdir -p /usr/local/share/ca-certificates/$FIREFOX_CA_DIR
 
-  sudo cp "$CA_PUBLIC_CERT_FILENAME" "/usr/local/share/ca-certificates/nextcloud_ssl/$CA_PUBLIC_CERT_FILENAME"
+  sudo cp "$CA_PUBLIC_CERT_FILENAME" "/usr/local/share/ca-certificates/$FIREFOX_CA_DIR/$CA_PUBLIC_CERT_FILENAME"
+
+  # TODO: verify the ca exists in the specified path
 
   # Add the .crt file's path relative to /usr/local/share/ca-certificates to:
   # /etc/ca-certificates.conf:
@@ -242,21 +247,38 @@ make_self_signed_root_cert_trusted_on_ubuntu() {
   add_self_signed_root_cert_to_firefox
 }
 
+# TODO: delete dummy files.
 add_self_signed_root_cert_to_firefox() {
-  echo "TODO: check if the json file exists."
-  echo "TODO: check if the json file already contains the Certificates entry."
-  echo "TODO: if not, safely add that entry with parametererised ca.crt name."
-  # Use policies in:
-  #/usr/lib/firefox/distribution/policies.json
-  # {
-  #    "policies": {
-  #        "Certificates": {
-  #            "Install": [
-  #                "/usr/local/share/ca-certificates/nextcloud_ssl/ca.crt"
-  #            ]
-  #        }
-  #    }
-  #}
-  echo "TODO: if json not exists, point user to url where to add ca.crt "
-  echo "manually."
+
+  # Unused path.
+  #local policies_filepath="/usr/lib/firefox/distribution/policies.json"
+  local policies_filepath="/etc/firefox/policies/policies.json"
+
+  local policies_line="/usr/local/share/ca-certificates/$FIREFOX_CA_DIR/$CA_PUBLIC_CERT_FILENAME"
+
+  if [ "$(file_exists $policies_filepath)" == "FOUND" ]; then
+
+    if [ "$(file_contains_string "$policies_line" "$policies_filepath")" == "NOTFOUND" ]; then
+
+      # Generate content to put in policies.json.
+      local new_json_content
+      new_json_content=$(jq '.policies.Certificates += [{
+                    "Install": ["'$policies_line'"]
+               }]' $policies_filepath)
+
+      # Append the content
+      echo "$new_json_content" >$policies_filepath
+    else
+      echo "Your certificate is already added to Firefox."
+    fi
+
+    # TODO: assert file contains string now.
+
+    # TODO: restart firefox.
+    pkill firefox
+    firefox &
+  else
+    echo "You have to add the self-signed root certificate authority to your"
+    echo "browser yourself."
+  fi
 }
