@@ -18,11 +18,12 @@ src/main.sh
 
 This is when the installation was already done and you would like to retry it.
 
-```
+```sh
 src/main.sh -un # uninstall Nextcloud
-src/main.sh -i
-src/main.sh -cn
-src/main.sh -h # To setup tor.
+src/main.sh -i # install Tor and Nextcloud
+src/main.sh -cn # Configure nextcloud
+src/main.sh -cs # Enable the Nextcloud Calendar application.
+src/main.sh -h # Setup https/ssl and make firefox trust it.
 ```
 
 ## Testing

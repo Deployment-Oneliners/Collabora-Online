@@ -4,6 +4,7 @@
 
 source src/cli_usage.sh
 source src/process_args.sh
+# shellcheck disable=SC1091
 source src/uninstall/uninstaller.sh
 
 # Get the positional arguments from the CLI.
@@ -76,7 +77,7 @@ while [[ $# -gt 0 ]]; do
       calendar_server_flag='true'
       shift # past argument
       ;;
-    -ct | --configure_tor)
+    -ct | --configure-tor)
       configure_tor_for_nextcloud_flag='true'
       shift # past argument
       ;;

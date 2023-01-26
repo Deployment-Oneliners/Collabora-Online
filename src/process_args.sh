@@ -159,7 +159,7 @@ configure_calendar() {
   verify_snap_installed "nextcloud"
 
   if [ "$calendar_server_flag" == "true" ]; then
-    enable_calendar_app
+    enable_calendar_app_in_nextcloud
   fi
 
   if [ "$calendar_client_flag" == "true" ]; then
