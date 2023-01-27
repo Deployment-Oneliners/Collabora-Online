@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-#source src/uninstall/remove_snap.sh
+# shellcheck disable=SC1091
+source src/uninstall/remove_snap.sh
+
 uninstaller() {
   local uninstall_nextcloud_flag="$1"
   local uninstall_tor_flag="$2"

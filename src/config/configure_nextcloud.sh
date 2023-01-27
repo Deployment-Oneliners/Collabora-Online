@@ -20,10 +20,35 @@ setup_admin_account_on_snap_nextcloud() {
   printf "\nApplying credentials values to NextCloud admin account...\n"
 
   echo "Only do this when it is not yet done."
-  local output
-  output=$(sudo /snap/bin/nextcloud.manual-install "${admin_username}" "${admin_pwd}")
-  sleep 5
-  echo "output=$output"
+  # local output
+  #output=$(sudo /snap/bin/nextcloud.manual-install "${admin_username}" "${admin_pwd}")
+  # sleep 5
+  #echo "output=$output"
+
+  # Remove mysql
+  sudo systemctl stop mysql -y
+  sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  sudo rm -rf /etc/mysql /var/lib/mysql
+  sudo apt autoremove -y
+  sudo apt autoclean
+
+  # Re-install mysql
+  sudo apt install mysql-server -y
+  sudo systemctl start mysql.service
+
+  # Set mysql pwd
+  sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
+
+  # Install and configure Nextcloud.
+  sudo nextcloud.occ maintenance:install \
+    --database="mysql" \
+    --database-name="nextcloud" \
+    --database-user="root" \
+    --database-host="127.0.01" \
+    --database-pass="mysql_password" \
+    --data-dir="/var/snap/nextcloud/common/nextcloud/data" \
+    --admin-user="root" \
+    --admin-pass="mysql_password"
 
   # TODO: verify the nextcloud server is live, and that the credentials work.
   verify_nextcloud_creds_are_set_correct
