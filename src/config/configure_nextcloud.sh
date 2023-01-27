@@ -19,10 +19,36 @@ setup_admin_account_on_snap_nextcloud() {
 
   printf "\nApplying credentials values to NextCloud admin account...\n"
 
-  local output
-  output=$(sudo /snap/bin/nextcloud.manual-install "${admin_username}" "${admin_pwd}")
-  sleep 5
-  echo "output=$output"
+  echo "Only do this when it is not yet done."
+  # local output
+  #output=$(sudo /snap/bin/nextcloud.manual-install "${admin_username}" "${admin_pwd}")
+  # sleep 5
+  #echo "output=$output"
+
+  # Remove mysql
+  sudo systemctl stop mysql -y
+  sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  sudo rm -rf /etc/mysql /var/lib/mysql
+  sudo apt autoremove -y
+  sudo apt autoclean
+
+  # Re-install mysql
+  sudo apt install mysql-server -y
+  sudo systemctl start mysql.service
+
+  # Set mysql pwd
+  sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
+
+  # Install and configure Nextcloud.
+  sudo nextcloud.occ maintenance:install \
+    --database="mysql" \
+    --database-name="nextcloud" \
+    --database-user="root" \
+    --database-host="127.0.01" \
+    --database-pass="mysql_password" \
+    --data-dir="/var/snap/nextcloud/common/nextcloud/data" \
+    --admin-user="root" \
+    --admin-pass="mysql_password"
 
   # TODO: verify the nextcloud server is live, and that the credentials work.
   verify_nextcloud_creds_are_set_correct
@@ -55,10 +81,18 @@ verify_nextcloud_creds_are_set_correct() {
 set_nextcloud_port() {
   local nextcloud_port="$1"
 
-  yellow_msg "\nConfiguring NextCloud, please wait...\n"
+  yellow_msg "\nConfiguring NextCloud:${nextcloud_port}, please wait...\n"
   sudo snap set nextcloud ports.http="${nextcloud_port}"
-
   # TODO: verify nextcloud port is set successfully.
+
+  #The website should display:
+  #Secure Connection Failed
+
+  #An error occurred during a connection to localhost:81. SSL received a
+  # record that exceeded the maximum permissible length.
+
+  # Error code: SSL_ERROR_RX_RECORD_TOO_LONG
+
 }
 
 add_onion_to_nextcloud_trusted_domain() {
@@ -74,6 +108,6 @@ add_onion_to_nextcloud_trusted_domain() {
   sudo /snap/bin/nextcloud.occ config:system:get trusted_domains
 }
 
-enable_calendar_app() {
+enable_calendar_app_in_nextcloud() {
   sudo /snap/bin/nextcloud.occ app:install calendar
 }

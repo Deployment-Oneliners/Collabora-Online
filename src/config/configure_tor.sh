@@ -100,7 +100,7 @@ start_tor_and_check_onion_url() {
   local hostname_filepath="$1"
   local tor_log_filepath="$2"
   # Start "sudo tor" in the background
-  sudo tor &>"$tor_log_filepath" &
+  sudo tor | tee "$tor_log_filepath" >/dev/null
 
   # Set the start time of the function
   start_time=$(date +%s)

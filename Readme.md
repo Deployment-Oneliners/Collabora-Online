@@ -14,6 +14,18 @@ The main code can be ran with:
 src/main.sh
 ```
 
+## Example Setup
+
+This is when the installation was already done and you would like to retry it.
+
+```sh
+src/main.sh -un # uninstall Nextcloud
+src/main.sh -i # install Tor and Nextcloud
+src/main.sh -cn # Configure nextcloud
+src/main.sh -cs # Enable the Nextcloud Calendar application.
+src/main.sh -h # Setup https/ssl and make firefox trust it.
+```
+
 ## Testing
 
 Put your unit test files (with extension .bats) in folder: `/test/`

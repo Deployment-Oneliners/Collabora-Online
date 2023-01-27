@@ -92,3 +92,40 @@ manual_assert_dir_exists() {
     exit 31
   fi
 }
+
+# Returns 0 if an array contains a string, 1 otherwise.
+# Case sensitive.
+# Allows for spaces
+#
+# Usage:
+# supported_apps=( "Orbot with spaces" DAVx5 )
+# find_in_array Orbot "${supported_apps[@]}"
+# result="$?"
+# echo "result=$result"
+# does not match (returns 1 in results)
+
+# find_in_array "Orbot with spaces" "${supported_apps[@]}"
+# does match (returns 0 in results)
+find_in_array() {
+  local word=$1
+  shift
+  for e in "$@"; do [[ "$e" == "$word" ]] && return 0; done
+  return 1
+}
+
+# Throws error if an app in csv_app_list is not supported by this repository.
+apps_are_supported() {
+  local csv_app_list
+  csv_app_list="$1"
+
+  IFS=, read -r -a arr <<<"${csv_app_list}"
+  echo "${arr[@]}"
+  for i in "${arr[@]}"; do
+    find_in_array "$i" "${SUPPORTED_APPS[@]}"
+    result="$?"
+    if [ "$result" -eq 1 ]; then
+      echo "Error, app:$i is not yet supported:$SUPPORTED_APPS"
+      exit 1
+    fi
+  done
+}

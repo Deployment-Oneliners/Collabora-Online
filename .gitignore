@@ -1,4 +1,5 @@
 coverage/*
+ssl_password.txt
 sudo_tor.out
 ca.crt
 ca-cert.crt
@@ -11,3 +12,4 @@ ca.srl
 cert.csr
 cert.pem
 fullchain.pem
+*.apk
