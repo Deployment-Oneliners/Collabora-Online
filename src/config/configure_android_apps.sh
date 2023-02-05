@@ -6,7 +6,8 @@ configure_orbot_apk() {
   # Configure orbot.
   conda create -n "androidappcommander" python=3.10 -y
   eval "$(conda shell.bash hook)"
-  conda deactivate && conda activate androidappcommander && pip install appcommander==0.0.24 && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
+  conda deactivate && conda activate androidappcommander && pip install appcommander==0.0.27 && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
+  echo "Done with Orbot"
 }
 
 configure_davx5_apk() {
@@ -17,14 +18,20 @@ configure_davx5_apk() {
 
   local onion_address
   onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
+  # TODO: verify access to onion is available.
+  # TODO: verify access to Nextcloud via this domain is trusted.
+  # TODO: verify orbot has been configured after this app is installed.
+  # otherwise, the orbot torrification of this app refers to a non-existing
+  # app, meaning DAVx5 won't be able to find your Nextcloud server over tor
+  # because DAVx5 is not torrified by orbot. As a bandaid, always run
+  # -ar DAVx5,Orbot and -ac DAVx5,Orbot for both apps at once.
 
   # Configure DAVx5 app.
   conda create -n "androidappcommander" python=3.10 -y
   eval "$(conda shell.bash hook)"
   pip install appcommander
-  conda deactivate && conda activate androidappcommander && pip install appcommander==0.0.21 && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
-  # conda deactivate && conda activate androidappcommander && bash -c  "appcommander -a $android_app_name -v \"4.2.6\" -nu $nextcloud_username -np $nextcloud_password -o $onion_address"
-
+  conda deactivate && conda activate androidappcommander && pip install appcommander >=0.0.27 && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
+  echo "Done with DAVx5"
 }
 
 #######################################

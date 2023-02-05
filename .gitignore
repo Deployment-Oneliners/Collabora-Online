@@ -1,3 +1,4 @@
+src/appcommander/*
 coverage/*
 ssl_password.txt
 sudo_tor.out

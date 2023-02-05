@@ -232,6 +232,7 @@ configure_android_apps() {
     IFS=, read -r -a arr <<<"${csv_app_list}"
     echo "${arr[@]}"
     for app_name in "${arr[@]}"; do
+      # TODO: ensure Orbot is always ran before DAVx5.
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Configuring: $app_name"
         configure_orbot_apk
