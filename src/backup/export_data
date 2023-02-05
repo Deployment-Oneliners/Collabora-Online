@@ -1,6 +1,6 @@
 #!/bin/bash
-# sudo ./export-data
-# sudo ./export-data -a -b -c -d
+# sudo ./export_data
+# sudo ./export_data -a -b -c -d
 
 source nextcloud_utilities
 source common_utilities
