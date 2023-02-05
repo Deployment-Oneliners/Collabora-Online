@@ -5,6 +5,7 @@
 # Load used functions, from path relative to this main.sh.
 # shellcheck source=/dev/null
 source src/cli_logger.sh
+source src/config/configure_android_apps.sh
 source src/config/configure_khal.sh
 source src/config/configure_nextcloud.sh
 source src/config/configure_tor.sh
@@ -212,27 +213,31 @@ reinstall_android_apps() {
 configure_android_apps() {
   local android_app_configure_flag
   android_app_configure_flag="$1"
+  local nextcloud_username
+  nextcloud_username="$2"
   local csv_app_list
-  csv_app_list="$2"
+  csv_app_list="$3"
 
   if [ "$android_app_configure_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
 
     # Get the Nextcloud password to configure Android apps with it.
     echo -n Nextcloud Password:
-    read -r -s nextcloud_password
+    #read -r -s nextcloud_password
     echo
     assert_is_non_empty_string "${nextcloud_password}"
-    echo "TODO: call Android configure with Nextcloud."
+    echo "GOT PWD:$nextcloud_password"
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"
     echo "${arr[@]}"
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
-        echo "TODO: (Re)-Configuring: $app_name"
+        echo "(Re)-Configuring: $app_name"
+        configure_orbot_apk
       elif [ "$app_name" == "DAVx5" ]; then
-        echo "TODO: (Re)-Configuring: $app_name"
+        echo "(Re)-Configuring: $app_name"
+        configure_davx5_apk "$nextcloud_username" "$nextcloud_password"
       fi
     done
   fi
