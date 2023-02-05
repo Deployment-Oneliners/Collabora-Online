@@ -142,6 +142,6 @@ start_tor "$setup_boot_script_flag" "$start_tor_flag" "$set_https_flag"
 configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
 
 reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"
-configure_android_apps "$android_app_configure_flag" "$configure_app_list"
+configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list"
 
 uninstaller "$uninstall_nextcloud_flag" "$uninstall_tor_flag"

@@ -7,6 +7,7 @@ print_usage() {
 
   printf "\nSupported options:"
   printf "\n-ar | --android-reinstall <appname_0,app_name1,app_name2> \n                                      to remove and reinstall android apps."
+  printf "\n-ac | --android-configure <appname_0,app_name1,app_name2> \n                                      to configure android apps to use Nextcloud."
   printf "\n-cn | --configure-nextcloud           to configure nextcloud with a default account."
   printf "\n-cs | --calendar-server               to enable the calendar app within snap Nextcloud on your pc."
   printf "\n-ct | --configure-tor                 to configure Tor with to facilitate nextcloud access over Tor."
