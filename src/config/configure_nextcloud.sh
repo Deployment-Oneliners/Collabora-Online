@@ -52,6 +52,8 @@ setup_admin_account_on_snap_nextcloud() {
 
   # TODO: verify the nextcloud server is live, and that the credentials work.
   verify_nextcloud_creds_are_set_correct
+
+  add_onion_to_nextcloud_trusted_domain
 }
 
 verify_nextcloud_creds_are_set_correct() {
@@ -96,7 +98,9 @@ set_nextcloud_port() {
 }
 
 add_onion_to_nextcloud_trusted_domain() {
-  local onion_address="$1"
+
+  local onion_address
+  onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
 
   # TODO: verify format of incoming onion address.
 

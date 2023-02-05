@@ -89,6 +89,9 @@ setup_nextcloud() {
   fi
 }
 
+# TODO: Allow for an argument to force override a new tor domain, otherwise
+# keep the current/existing tor-domain, or make a new one if no onion domain
+# is already created.
 setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
@@ -110,10 +113,7 @@ setup_tor_for_nextcloud() {
     # Ensures an onion url is created for Nextcloud.
     start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH"
     assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-    local onion_address
-    onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-
-    add_onion_to_nextcloud_trusted_domain "$onion_address"
+    add_onion_to_nextcloud_trusted_domain
   fi
 
   # Used if the user passes: -o or --get-onion to CLI.
