@@ -6,7 +6,7 @@ SNAP_DATA_CURRENT="$(realpath -s "$SNAP_DATA/../current")"
 export SNAP_CURRENT
 export SNAP_DATA_CURRENT
 
-echo "HELLO WORLD"
+# Used.
 stdout_is_a_terminal() {
   [ -t 1 ]
 }
@@ -15,6 +15,7 @@ stderr_is_a_terminal() {
   [ -t 2 ]
 }
 
+# Used.
 run_command() {
   # Ideally we could output these all on one line, but that only works with a
   # terminal. Support both.
@@ -90,6 +91,7 @@ set_previous_snap_version() {
   snapctl set private.snap.version="$1"
 }
 
+# Used.
 enable_maintenance_mode() {
   if run_command "Enabling maintenance mode" nextcloud.occ -n maintenance:mode --on; then
     # The opcache might cache changes for two seconds. Wait for three to be safe.

@@ -7,12 +7,21 @@ source src/process_args.sh
 # shellcheck disable=SC1091
 source src/uninstall/uninstaller.sh
 
+source src/config/configure_tor.sh
+# something=$(onion_is_available "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion")
+something=$(onion_is_available "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion" 80)
+# torsocks httping --count 1 "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion"
+# torsocks httping --count 1 "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion" &> /dev/null && echo connected || echo fail
+
+echo "something=$something"
+
 # Get the positional arguments from the CLI.
 POSITIONAL_ARGS=()
 
 # Specify default argument values.
-default_nextcloud_username="some_username"
+default_nextcloud_username="root"
 default_nextcloud_password="some_password"
+default_ssl_password='ssl_password'
 
 android_app_reinstall_flag='false'
 android_app_configure_flag='false'
@@ -23,6 +32,7 @@ configure_nextcloud_flag='false'
 configure_tor_for_nextcloud_flag='false'
 install_tor_nextcloud_flag='false'
 get_onion_flag='false'
+new_onion_flag='false'
 nextcloud_pwd_flag='false'
 nextcloud_username_flag='false'
 set_https_flag='false'
@@ -89,6 +99,10 @@ while [[ $# -gt 0 ]]; do
       install_tor_nextcloud_flag='true'
       shift # past argument
       ;;
+    -no | --new-onion)
+      new_onion_flag='true'
+      shift # past argument
+      ;;
     -nu | --nextcloud-username)
       nextcloud_username_flag='true'
       nextcloud_username="$2"
@@ -108,6 +122,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -s | --start-tor)
       start_tor_flag='true'
+      shift # past argument
+      ;;
+    -sp | --ssl-password)
+      ssl_password="$2"
       shift # past argument
       ;;
     -un | --uninstall-nextcloud)
@@ -135,10 +153,20 @@ if [[ -n $1 ]]; then
   tail -1 "$1"
 fi
 
+if [ "$nextcloud_username" != "root" ] && [ "$nextcloud_username" != "" ]; then
+  echo "Error, nextcloud_username other than:root is not yet supported because"
+  echo "of mysql, which requires a root username, and needs to have the same "
+  echo "username as Nextcloud."
+  exit 5
+fi
+
 setup_nextcloud "$configure_nextcloud_flag" "$default_nextcloud_username" "$default_nextcloud_password" "$install_tor_nextcloud_flag" "$nextcloud_pwd_flag" "$nextcloud_username_flag"
 setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag"
-start_tor "$setup_boot_script_flag" "$start_tor_flag" "$set_https_flag"
-
+if [ "$nextcloud_password" == "" ]; then
+  start_tor "$setup_boot_script_flag" "$start_tor_flag" "$set_https_flag" "$default_ssl_password"
+else
+  start_tor "$setup_boot_script_flag" "$start_tor_flag" "$set_https_flag" "$nextcloud_password"
+fi
 configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
 
 reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"

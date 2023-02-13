@@ -28,6 +28,7 @@ CUSTOM_NEXTCLOUD_DATADIR="/var/snap/nextcloud/common/nextcloud/data"
 
 COMMAND="nextcloud.import"
 
+# Used.
 print_usage() {
   echo "Usage:"
   echo "    $COMMAND [OPTIONS] <backup dir>"
@@ -43,6 +44,7 @@ print_usage() {
   echo "    -d: Import the data"
 }
 
+# Used.
 import_apps() {
   backup_dir="${1%/}"
   apps_backup="${backup_dir}/apps"
@@ -54,6 +56,7 @@ import_apps() {
   fi
 }
 
+# Used.
 import_database() {
   backup_dir="$1"
   database_backup="${backup_dir}/database.sql"
@@ -71,6 +74,7 @@ import_database() {
   fi
 }
 
+# Used.
 import_config() {
   backup_dir="$1"
   config_backup="${backup_dir}/config.php"
@@ -85,6 +89,7 @@ import_config() {
   fi
 }
 
+# Used.
 import_data() {
   backup_dir="${1%/}"
   data_backup="${backup_dir}/data"

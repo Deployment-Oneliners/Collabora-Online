@@ -18,6 +18,7 @@ COMMAND="nextcloud.export"
 BACKUP_DIRECTORY="/home/name/git/backup0"
 FORMAT="1"
 
+# Used.
 print_usage() {
   echo "Usage:"
   echo "    $COMMAND [OPTIONS]"
@@ -33,6 +34,7 @@ print_usage() {
   echo "    -d: Include the data (can be quite large)"
 }
 
+# Used.
 export_apps() {
   backup="$1"
   echo "Exporting apps..."
@@ -42,6 +44,7 @@ export_apps() {
   fi
 }
 
+# Used.
 export_database() {
   backup="$1"
   echo "Exporting database..."
@@ -52,6 +55,7 @@ export_database() {
   fi
 }
 
+# Used.
 export_config() {
   backup="$1"
   config_backup="${backup}/config.php"
@@ -65,6 +69,7 @@ export_config() {
   fi
 }
 
+# Used.
 export_data() {
   backup="$1"
   echo "Exporting data..."

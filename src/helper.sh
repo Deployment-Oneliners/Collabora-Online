@@ -129,3 +129,82 @@ apps_are_supported() {
     fi
   done
 }
+
+assert_element_one_before_two_in_csv() {
+  local elem_one
+  elem_one="$1"
+  local elem_two
+  elem_two="$2"
+  local csv_array
+  csv_array="$3"
+
+  if [[ "$(element_one_before_two_in_csv "$elem_one" "$elem_two" "$csv_array")" != "BEFORE" ]]; then
+    echo "Error, $elem_one not before $elem_two in: $csv_array"
+    exit 6
+  fi
+}
+
+element_one_before_two_in_csv() {
+  local elem_one
+  elem_one="$1"
+  local elem_two
+  elem_two="$2"
+  local csv_array
+  csv_array="$3"
+
+  IFS=, read -r -a arr <<<"${csv_array}"
+  local found_one
+  local found_two
+
+  assert_csv_array_contains_element "$elem_one" "$csv_array"
+  assert_csv_array_contains_element "$elem_two" "$csv_array"
+
+  for item in "${arr[@]}"; do
+    if [[ $elem_one == "$item" ]]; then
+      found_one="FOUND"
+    fi
+    if [[ $elem_two == "$item" ]]; then
+      found_two="FOUND"
+    fi
+
+    if [[ "$found_two" == "FOUND" ]] && [[ "$found_one" != "FOUND" ]]; then
+      echo "AFTER"
+      break
+    elif [[ "$found_one" == "FOUND" ]] && [[ "$found_two" != "FOUND" ]]; then
+      echo "BEFORE"
+      break
+    fi
+  done
+
+}
+
+assert_csv_array_contains_element() {
+  local elem_one
+  elem_one="$1"
+  local csv_array
+  csv_array="$2"
+
+  if [[ "$(csv_array_contains_element "$elem_one" "$csv_array")" != "FOUND" ]]; then
+    echo "Error, did not find element:$elem_one in: $csv_array"
+    exit 6
+  fi
+}
+
+csv_array_contains_element() {
+  local elem_one
+  elem_one="$1"
+  local csv_array
+  csv_array="$2"
+
+  IFS=, read -r -a containing_arr <<<"${csv_array}"
+  local found_one
+  for item in "${containing_arr[@]}"; do
+    if [[ "$elem_one" == "$item" ]]; then
+      found_one="FOUND"
+      echo "FOUND"
+    fi
+  done
+  if [[ $found_one != "FOUND" ]]; then
+    echo "NOTFOUND"
+  fi
+}

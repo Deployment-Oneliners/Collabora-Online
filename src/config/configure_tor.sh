@@ -31,33 +31,7 @@ configure_tor() {
   manual_assert_file_exists "$torrc_filepath"
 
   # C. Specify what the desired content of that file is. External example:
-  # # NextCloud hidden service configuration." \
-  # HiddenServiceDir $tor_service_dir/nextcloud/" \
-  # HiddenServicePort $hidden_service_port 127.0.0.1:$NEXTCLOUD_PORT\n" \
-  # Local example:
-  # append ssh service to torrc
-  # first_line="HiddenServiceDir $HIDDENSERVICEDIR_SSH$HIDDENSERVICENAME_SSH/"
-  # second_line_option_I="HiddenServicePort 22"
-  # second_line_option_II="HiddenServicePort 22 127.0.0.1:22"
-  # (For shh which has ports 22,23)
-  # C.0 So it is either:
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 80 127.0.0.1:81
-  # C.1 Or:
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 80
-  # C.2 Or:
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 80 127.0.0.1:80
-  # C.3 Or (not verified manually):
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 80 127.0.0.1:81
-  # C.4 Or (not verified manually):
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 81 127.0.0.1:80
-  # C.5 Or (not verified manually):
-  # HiddenServiceDir /var/lib/tor/nextcloud/
-  # HiddenServicePort 81 127.0.0.1:81
+  # # NextCloud hidden service configuration."
 
   # So try C.2:
   # https://stackoverflow.com/a/38797241/7437143
@@ -99,6 +73,12 @@ configure_tor() {
 start_tor_and_check_onion_url() {
   local hostname_filepath="$1"
   local tor_log_filepath="$2"
+  local new_onion_flag="$3"
+
+  if [ "$new_onion_flag" == "true" ]; then
+    rm "$hostname_filepath"
+  fi
+
   # Start "sudo tor" in the background
   sudo tor | tee "$tor_log_filepath" >/dev/null
 
@@ -109,6 +89,7 @@ start_tor_and_check_onion_url() {
   while true; do
     local onion_exists
     onion_exists=$(check_onion_url_exists_in_hostname "$hostname_filepath")
+
     # Check if the onion URL exists in the hostname
     if [ "$onion_exists" -eq 0 ]; then
       # If the onion URL exists, terminate the "sudo tor" process and return 0
@@ -129,4 +110,40 @@ start_tor_and_check_onion_url() {
     # Wait for 5 seconds before checking again
     sleep 5
   done
+}
+
+# Returns "FOUND" if an onion was available on the first try.
+# TODO: allow for retries in parsing ping output.
+onion_is_available() {
+  local onion="$1"
+  local port="$2"
+
+  local address
+  if [ "$port" == "" ]; then
+    address="$onion"
+  else
+    address="$onion:$port"
+  fi
+
+  local ping_output
+  ping_output=$(torsocks httping --count 1 "$address")
+  if [[ "$ping_output" == *"100,00% failed"* ]]; then
+    echo "NOTFOUND"
+  elif [[ "$ping_output" == *"1 connects, 1 ok, 0,00% failed, time"* ]]; then
+    echo "FOUND"
+  else
+    echo "Error, did not find status."
+    exit 5
+  fi
+}
+
+assert_onion_is_available() {
+  local onion="$1"
+  local port="$2"
+
+  if [ "$(onion_is_available "$onion" "$port")" != "FOUND" ]; then
+    echo "Error, was not able to connect to:$onion"
+    exit 5
+  fi
+
 }
