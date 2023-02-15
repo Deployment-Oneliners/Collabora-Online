@@ -14,3 +14,4 @@ cert.csr
 cert.pem
 fullchain.pem
 *.apk
+=*

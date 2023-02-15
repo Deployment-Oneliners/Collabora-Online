@@ -12,6 +12,7 @@ source src/config/configure_tor.sh
 source src/config/configure_vdirsyncer.sh
 source src/config/helper_tor_parsing.sh
 source src/config/setup_ssl.sh
+source src/connectivity_checks.sh
 source src/helper.sh
 source src/install/install_android_apps.sh
 source src/install/install_apk.sh
@@ -168,14 +169,15 @@ reinstall_android_apps() {
 
   if [ "$android_app_reinstall_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
+    assert_phone_is_connected_via_adb
 
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    echo "${arr[@]}"
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Installing: $app_name"
         re_install_orbot_apk
-      elif [ "$app_name" == "DAVx5" ]; then
+      fi
+      if [ "$app_name" == "DAVx5" ]; then
         echo "(Re)-Installing: $app_name"
         re_install_davx5_apk
       fi
@@ -193,24 +195,33 @@ configure_android_apps() {
 
   if [ "$android_app_configure_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
+    assert_phone_has_internet_connection
 
     # Get the Nextcloud password to configure Android apps with it.
     echo -n Nextcloud Password:
     #read -r -s nextcloud_password
     echo
     assert_is_non_empty_string "${nextcloud_password}"
-    echo "GOT PWD:$nextcloud_password"
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    echo "${arr[@]}"
-
+    
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Configuring: $app_name"
         configure_orbot_apk
       elif [ "$app_name" == "DAVx5" ]; then
+        
+        # Aqcuire sudo permission to configure DAVx5 throug adb and appcommander.
+        sudo echo
+
+        # Verify orbot has been configured after this app is installed.
+        # otherwise, the orbot torrification of this app refers to a non-existing
+        # app, meaning DAVx5 won't be able to find your Nextcloud server over tor
+        # because DAVx5 is not torrified by orbot. As a bandaid, always run
+        # -ar DAVx5,Orbot and -ac DAVx5,Orbot for both apps at once.
         assert_element_one_before_two_in_csv "Orbot" "DAVx5" "$csv_app_list"
+
         echo "(Re)-Configuring: $app_name"
         configure_davx5_apk "$nextcloud_username" "$nextcloud_password" "$LOCAL_NEXTCLOUD_PORT"
       fi

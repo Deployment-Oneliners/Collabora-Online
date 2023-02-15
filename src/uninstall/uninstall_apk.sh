@@ -17,13 +17,13 @@ remove_android_app() {
   # Install app if it is not yet installed.
   if [ "$app_exists" == "package:$android_app_name" ]; then
     adb uninstall "$android_app_name"
-    sleep 5
+    wait_until_phone_is_connected_via_adb_and_online 60
   fi
 
   # Verify that the app was installed.
   app_exists=$(adb shell pm list packages "$android_app_name")
   if [ "$app_exists" == "package:$android_app_name" ]; then
-    echo "Error, app still exists."
+    echo "Error, app:$android_app_name still exists on phone."
     return 9
   fi
 

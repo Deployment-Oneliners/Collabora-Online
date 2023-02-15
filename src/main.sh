@@ -7,14 +7,6 @@ source src/process_args.sh
 # shellcheck disable=SC1091
 source src/uninstall/uninstaller.sh
 
-source src/config/configure_tor.sh
-# something=$(onion_is_available "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion")
-something=$(onion_is_available "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion" 80)
-# torsocks httping --count 1 "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion"
-# torsocks httping --count 1 "protonmailrmez3lotccipshtkleegetolb73fuirgj7r4o4vfu7ozyd.onion" &> /dev/null && echo connected || echo fail
-
-echo "something=$something"
-
 # Get the positional arguments from the CLI.
 POSITIONAL_ARGS=()
 
