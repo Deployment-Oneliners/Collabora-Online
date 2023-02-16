@@ -33,31 +33,6 @@ has_two_consecutive_lines() {
   fi
 }
 
-# TODO: remove
-has_either_block_of_two_consecutive_lines() {
-  local first_line=$1
-  local second_line_option_I=$2
-  local second_line_option_II=$3
-  local rel_filepath=$4
-
-  local has_first_block
-  has_first_block=$(has_two_consecutive_lines "$first_line" "$second_line_option_I" "$rel_filepath")
-  #echo "has_first_block=$has_first_block"
-
-  local has_second_block
-  has_second_block=$(has_two_consecutive_lines "$first_line" "$second_line_option_II" "$rel_filepath")
-  #echo "has_second_block=$has_second_block"
-  if [ "$has_first_block" == "FOUND" ] || [ "$has_second_block" == "FOUND" ]; then
-    echo "FOUND"
-  else
-    if [ "$(file_contains_string "$first_line" "$rel_filepath")" == "FOUND" ]; then
-      echo "ERROR"
-    else
-      echo "NOTFOUND"
-    fi
-  fi
-}
-
 append_lines_if_not_found() {
   local first_line=$1
   local second_line=$2
@@ -85,7 +60,6 @@ append_lines_if_not_found() {
 #  7 if
 # Outputs:
 #  None.
-# TODO(a-t-0): change root with Global variable.
 #######################################
 # Structure:Parsing
 # allows a string with spaces, hence allows a line
@@ -113,7 +87,7 @@ file_contains_string() {
 #  7 if
 # Outputs:
 #  None.
-# TODO(a-t-0): change root with Global variable.
+
 #######################################
 # Structure:Parsing
 get_line_nr() {
@@ -138,7 +112,7 @@ get_line_nr() {
 #  7 if
 # Outputs:
 #  None.
-# TODO(a-t-0): change root with Global variable.
+
 #######################################
 # Structure:Parsing
 get_line_by_nr() {

@@ -36,10 +36,7 @@ install_android_app() {
   # Ensure the .apk file exists.
   ensure_apk_is_downloaded_from_some_link "$apk_filename" "$expected_md5" "$app_url"
 
-  # Check if adb is available and if a device is connected.
-  if ! command -v adb &>/dev/null || ! adb devices | grep -q "^[^*]*device$"; then
-    return 7
-  fi
+  assert_phone_is_connected_via_adb
 
   # Check if the app is installed.
   local app_exists
@@ -47,18 +44,25 @@ install_android_app() {
 
   # Install app if it is not yet installed.
   if [ "$app_exists" != "package:$android_app_name" ]; then
-    adb install "$apk_filename"
+    # TODO: if output = adb: failed to install <filename.apk>: suggest to user
+    # this is most likely because of bad usb cable.
+    adb install "$apk_filename" 
   else
     echo "Removing app: $android_app_name"
-    remove_android_app "$android_app_name"
+    remove_android_app "$android_app_name" &>/dev/null
+    wait_until_phone_is_connected_via_adb_and_online 60
     echo "Re-installing app."
+    # TODO: if output = adb: failed to install <filename.apk>: suggest to user
+    # this is most likely because of bad usb cable.
     adb install "$apk_filename"
   fi
+  wait_until_phone_is_connected_via_adb_and_online 60
+  assert_phone_is_connected_via_adb
 
   # Verify that the app was installed.
   app_exists=$(adb shell pm list packages "$android_app_name")
   if [ "$app_exists" != "package:$android_app_name" ]; then
-    echo "error, app does not exist."
+    echo "Error, app: $android_app_name does not exist."
     return 9
   fi
 
@@ -74,14 +78,14 @@ ensure_apk_is_downloaded_from_some_link() {
 
   # Check that the downloaded file is a valid APK file.
   if ! file "$apk_filename"; then
-    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url"
+    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url" &>/dev/null
   fi
 
   # Check the MD5 checksum of the downloaded file.
   local actual_md5
   read -r -a actual_md5 <<<"$(md5sum "$apk_filename")"
   if [ "${actual_md5[0]}" != "$expected_md5" ]; then
-    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url"
+    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url" &>/dev/null
   fi
 
   # Check that the downloaded file is a valid APK file.
@@ -92,7 +96,7 @@ ensure_apk_is_downloaded_from_some_link() {
   # Check the MD5 checksum of the downloaded file.
   read -r -a actual_md5 <<<"$(md5sum "$apk_filename")"
   if [ "${actual_md5[0]}" != "$expected_md5" ]; then
-    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url"
+    download_apk_file_from_link "$apk_filename" "$expected_md5" "$app_url" &>/dev/null
   fi
 }
 
@@ -102,8 +106,8 @@ download_apk_file_from_link() {
   local app_url="$3"
 
   # Download the app.
-  echo "GETTING URL"
-  if ! wget "$app_url" -O "$apk_filename"; then
+  # if ! wget "$app_url" -O "$apk_filename" ; then
+  if ! wget "$app_url" -O "$apk_filename" &>/dev/null; then
     return 8
   fi
 

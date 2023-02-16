@@ -12,6 +12,7 @@ source src/config/configure_tor.sh
 source src/config/configure_vdirsyncer.sh
 source src/config/helper_tor_parsing.sh
 source src/config/setup_ssl.sh
+source src/connectivity_checks.sh
 source src/helper.sh
 source src/install/install_android_apps.sh
 source src/install/install_apk.sh
@@ -92,6 +93,8 @@ setup_nextcloud() {
 setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
+  local new_onion_flag
+  new_onion_flag="$3"
 
   # 6.a Proxify calendar app to go over tor to Nextcloud on client.
   # 6.b Verify calendar app goes over tor to Nextcloudon client.
@@ -105,50 +108,21 @@ setup_tor_for_nextcloud() {
   # Used if the user passes: -ct or --configure_tor to CLI.
   if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
     verify_apt_installed "tor"
+
+    # Setups up Nextcloud folder for tor private and public key to generate
+    # onion domain.
     configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
 
     # Ensures an onion url is created for Nextcloud.
-    start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH"
+    start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "$new_onion_flag"
     assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-    local onion_address
-    onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-
-    add_onion_to_nextcloud_trusted_domain "$onion_address"
+    add_onion_to_nextcloud_trusted_domain
   fi
 
   # Used if the user passes: -o or --get-onion to CLI.
   if [ "$get_onion_flag" == "true" ]; then
     verify_apt_installed "tor"
     sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-  fi
-}
-
-start_tor() {
-  local setup_boot_script_flag="$1"
-  local start_tor_flag="$2"
-  local set_https_flag="$3"
-
-  # Verify tor is installed.
-  verify_apt_installed "tor"
-
-  # Order is important.
-  if [ "$set_https_flag" == "true" ]; then
-    assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-
-    local onion_address
-    onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-    setup_tor_ssl "$onion_address"
-  fi
-
-  # Start tor.
-  if [ "$start_tor_flag" == "true" ]; then
-    # TODO: make this a background process after which the code can continue.
-    start_and_monitor_tor_connection
-  fi
-
-  # Used if the user passes: -b or --boot to CLI.
-  if [ "$setup_boot_script_flag" == "true" ]; then
-    echo "TODO: setup_boot_script_flag"
   fi
 }
 
@@ -195,14 +169,15 @@ reinstall_android_apps() {
 
   if [ "$android_app_reinstall_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
+    assert_phone_is_connected_via_adb
 
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    echo "${arr[@]}"
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Installing: $app_name"
         re_install_orbot_apk
-      elif [ "$app_name" == "DAVx5" ]; then
+      fi
+      if [ "$app_name" == "DAVx5" ]; then
         echo "(Re)-Installing: $app_name"
         re_install_davx5_apk
       fi
@@ -220,25 +195,35 @@ configure_android_apps() {
 
   if [ "$android_app_configure_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
+    assert_phone_has_internet_connection
 
     # Get the Nextcloud password to configure Android apps with it.
     echo -n Nextcloud Password:
     #read -r -s nextcloud_password
     echo
     assert_is_non_empty_string "${nextcloud_password}"
-    echo "GOT PWD:$nextcloud_password"
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    echo "${arr[@]}"
+    
     for app_name in "${arr[@]}"; do
-      # TODO: ensure Orbot is always ran before DAVx5.
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Configuring: $app_name"
         configure_orbot_apk
       elif [ "$app_name" == "DAVx5" ]; then
+        
+        # Aqcuire sudo permission to configure DAVx5 throug adb and appcommander.
+        sudo echo
+
+        # Verify orbot has been configured after this app is installed.
+        # otherwise, the orbot torrification of this app refers to a non-existing
+        # app, meaning DAVx5 won't be able to find your Nextcloud server over tor
+        # because DAVx5 is not torrified by orbot. As a bandaid, always run
+        # -ar DAVx5,Orbot and -ac DAVx5,Orbot for both apps at once.
+        assert_element_one_before_two_in_csv "Orbot" "DAVx5" "$csv_app_list"
+
         echo "(Re)-Configuring: $app_name"
-        configure_davx5_apk "$nextcloud_username" "$nextcloud_password"
+        configure_davx5_apk "$nextcloud_username" "$nextcloud_password" "$LOCAL_NEXTCLOUD_PORT"
       fi
     done
   fi

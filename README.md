@@ -24,6 +24,8 @@ src/main.sh -i # install Tor and Nextcloud
 src/main.sh -cn # Configure nextcloud
 src/main.sh -cs # Enable the Nextcloud Calendar application.
 src/main.sh -h # Setup https/ssl and make firefox trust it.
+src/main.sh -ar Orbot,DAVx5
+src/main.sh -ac Orbot,DAVx5 -nu root -np
 ```
 
 ## Testing

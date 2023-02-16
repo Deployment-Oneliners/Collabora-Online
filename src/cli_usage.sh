@@ -13,6 +13,7 @@ print_usage() {
   printf "\n-ct | --configure-tor                 to configure Tor with to facilitate nextcloud access over Tor."
   printf "\n-h | --https                          to support HTTPS for .onion domain on server, and make Firefox trust it."
   printf "\n-i | --install-tor-nextcloud          to install Tor and Nextcloud."
+  printf "\n-no | --new-onion                     to create a new onion domain (e.g. if you accidentally shared your onion domain and/or private key.)."
   printf "\n-nu <your Nextcloud username> | --nextcloud-username <your Nextcloud username>\n                                      to pass your Nextcloud username."
   printf "\n-np | --nextcloud-password            to get a prompt for your Nextcloud password, so you don't have to wait to enter it manually."
   printf "\n-o | --get-onion                      to show your private .onion url."

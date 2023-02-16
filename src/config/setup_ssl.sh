@@ -55,8 +55,12 @@ MERGED_CA_SSL_CERT_FILENAME="fullchain.pem"
 # Firefox CA folder path:
 FIREFOX_CA_DIR='nextcloud_ssl'
 
+TEMP_SSL_PWD_FILENAME="ssl_password.txt"
+COUNTRY_CODE="FR"
+
 setup_tor_ssl() {
   local onion_address="$1"
+  local ssl_password="$2"
 
   # TODO: if files already exist, perform double check on whether user wants to
   # overwrite the files.
@@ -69,7 +73,7 @@ setup_tor_ssl() {
   delete_target_files
 
   # Generate and apply certificate.
-  generate_ca_cert "$CA_PRIVATE_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME"
+  generate_ca_cert "$CA_PRIVATE_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME" "$ssl_password"
 
   generate_ssl_certificate "$CA_PUBLIC_KEY_FILENAME" "$CA_PRIVATE_KEY_FILENAME" "$CA_SIGN_SSL_CERT_REQUEST_FILENAME" "$SIGNED_DOMAINS_FILENAME" "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$domains"
 
@@ -90,21 +94,16 @@ setup_tor_ssl() {
 generate_ca_cert() {
   local ca_private_key_filename="$1"
   local ca_public_key_filename="$2"
+  local ssl_password="$3"
 
-  # TODO: make the user specify this in CLI!
-  echo "some_ssl_password" >"ssl_password.txt"
+  echo "$ssl_password" >"$TEMP_SSL_PWD_FILENAME"
 
   # Generate RSA
-  #openssl genrsa -aes256 -out "$ca_private_key_filename" 4096
-  openssl genrsa -passout file:ssl_password.txt -aes256 -out "$ca_private_key_filename" 4096
+  openssl genrsa -passout file:$TEMP_SSL_PWD_FILENAME -aes256 -out "$ca_private_key_filename" 4096
 
   # Generate a public CA Cert
-  # openssl req -new -x509 -sha256 -days 365 -key "$ca_private_key_filename" -out "$ca_public_key_filename"
-  # Add passsword to cli.
-  #openssl req -passin file:ssl_password.txt -new -x509 -sha256 -days 365 -key "$ca_private_key_filename" -out "$ca_public_key_filename"
-  # Automatically specify Country Name.
-  # TODO: make the user specify this in CLI!
-  openssl req -passin file:ssl_password.txt -subj "/C=FR/" -new -x509 -sha256 -days 365 -key "$ca_private_key_filename" -out "$ca_public_key_filename"
+  openssl req -passin file:$TEMP_SSL_PWD_FILENAME -subj "/C=$COUNTRY_CODE/" -new -x509 -sha256 -days 365 -key "$ca_private_key_filename" -out "$ca_public_key_filename"
+
 }
 
 generate_ssl_certificate() {
@@ -127,13 +126,10 @@ generate_ssl_certificate() {
   # Create a `extfile` with all the alternative names
   echo "subjectAltName=$domains" >>"$signed_domains_filename"
 
-  # optional
-  #echo extendedKeyUsage = serverAuth >> "$ca_sign_ssl_cert_request_filename"
-
   # Create the public SSL certificate.
-  #openssl x509 -req -sha256 -days 365 -in "$ca_sign_ssl_cert_request_filename" -CA "$ca_public_key_filename" -CAkey "$ca_private_key_filename" -out "$ssl_public_key_filename" -extfile "$signed_domains_filename" -CAcreateserial
-  # TODO: make the user specify this in CLI!
-  openssl x509 -passin file:ssl_password.txt -req -sha256 -days 365 -in "$ca_sign_ssl_cert_request_filename" -CA "$ca_public_key_filename" -CAkey "$ca_private_key_filename" -out "$ssl_public_key_filename" -extfile "$signed_domains_filename" -CAcreateserial
+  openssl x509 -passin file:$TEMP_SSL_PWD_FILENAME -req -sha256 -days 365 -in "$ca_sign_ssl_cert_request_filename" -CA "$ca_public_key_filename" -CAkey "$ca_private_key_filename" -out "$ssl_public_key_filename" -extfile "$signed_domains_filename" -CAcreateserial
+
+  rm "$TEMP_SSL_PWD_FILENAME"
 
 }
 
@@ -163,14 +159,11 @@ install_the_ca_cert_as_a_trusted_root_ca() {
   sudo rm -f "/usr/local/share/ca-certificates/$ca_public_cert_filename"
   sudo update-ca-certificates
 
-  # TODO: Verify target directory exists.
   # On Debian & Derivatives:
   #- Move the CA certificate (`"$ca_private_key_filename"`) into `/usr/local/share/ca-certificates/ca.crt`.
+  manual_assert_dir_exists "/usr/local/share/ca-certificates/"
   sudo cp "$ca_public_cert_filename" "/usr/local/share/ca-certificates/$ca_public_cert_filename"
-
-  # TODO: Verify target file exists.
-
-  # TODO: Verify target file MD5sum.
+  manual_assert_file_exists "/usr/local/share/ca-certificates/$ca_public_cert_filename"
 
   # Update the Cert Store with:
   sudo update-ca-certificates
@@ -227,31 +220,26 @@ make_self_signed_root_cert_trusted_on_ubuntu() {
 
   ensure_apt_pkg "ca-certificates"
 
-  # TODO: add to remove in uninstallation.
   sudo mkdir -p /usr/local/share/ca-certificates/$FIREFOX_CA_DIR
 
   sudo cp "$CA_PUBLIC_CERT_FILENAME" "/usr/local/share/ca-certificates/$FIREFOX_CA_DIR/$CA_PUBLIC_CERT_FILENAME"
+  manual_assert_file_exists "/usr/local/share/ca-certificates/$FIREFOX_CA_DIR/$CA_PUBLIC_CERT_FILENAME"
 
-  # TODO: verify the ca exists in the specified path
-
+  # TODO: determine whether these comments are relevant.
   # Add the .crt file's path relative to /usr/local/share/ca-certificates to:
   # /etc/ca-certificates.conf:
-  #sudo dpkg-reconfigure ca-certificates
+  #sudo dpkg-reconfigure ca-certificatesCA_PUBLIC_CERT_FILENAME
 
   sudo update-ca-certificates
-
-  # TODO: verify the ca is in the trusted ca-certificates.
-  #dir with ca certificates:
-  # /etc/ssl/certs
+  # Verify the ca is in the trusted ca-certificates dir with ca
+  # certificates: /etc/ssl/certs(/ca.pem)
+  manual_assert_file_exists "/etc/ssl/certs/$CA_PUBLIC_KEY_FILENAME"
 
   add_self_signed_root_cert_to_firefox
 }
 
-# TODO: delete dummy files.
 add_self_signed_root_cert_to_firefox() {
 
-  # Unused path.
-  #local policies_filepath="/usr/lib/firefox/distribution/policies.json"
   local policies_filepath="/etc/firefox/policies/policies.json"
 
   local policies_line="/usr/local/share/ca-certificates/$FIREFOX_CA_DIR/$CA_PUBLIC_CERT_FILENAME"
@@ -271,10 +259,13 @@ add_self_signed_root_cert_to_firefox() {
     else
       echo "Your certificate is already added to Firefox."
     fi
+    # Assert the policy is in the file.
+    if [ "$(file_contains_string "$policies_line" "$policies_filepath")" == "NOTFOUND" ]; then
+      echo "Error, policy was not found in file:$policies_filepath"
+      exit 5
+    fi
 
-    # TODO: assert file contains string now.
-
-    # TODO: restart firefox.
+    # Restart firefox.
     pkill firefox
     firefox &
   else
