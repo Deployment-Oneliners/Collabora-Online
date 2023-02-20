@@ -73,7 +73,7 @@ configure_tor() {
 # Outputs:
 #  None.
 #######################################
-  start_tor_and_check_onion_url() {
+start_tor_and_check_onion_url() {
   local hostname_filepath="$1"
   local tor_log_filepath="$2"
   local new_onion_flag="$3"
@@ -81,6 +81,9 @@ configure_tor() {
   if [ "$new_onion_flag" == "true" ]; then
     rm -f "$hostname_filepath"
   fi
+  
+  # Make root owner of tor directory.
+  sudo chown -R root /var/lib/tor
 
   # Start "sudo tor" in the background
   sudo tor | tee "$tor_log_filepath" >/dev/null
