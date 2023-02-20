@@ -46,6 +46,9 @@ configure_tor() {
 
   # F. Verify that content is in the file.
   verify_has_two_consecutive_lines "$torrc_line_1" "$torrc_line_2" "$torrc_filepath"
+
+  # Initiate tor once to create the onion domain.
+  start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "true"
 }
 
 #!/usr/bin/env bash
@@ -70,13 +73,13 @@ configure_tor() {
 # Outputs:
 #  None.
 #######################################
-start_tor_and_check_onion_url() {
+  start_tor_and_check_onion_url() {
   local hostname_filepath="$1"
   local tor_log_filepath="$2"
   local new_onion_flag="$3"
 
   if [ "$new_onion_flag" == "true" ]; then
-    rm "$hostname_filepath"
+    rm -f "$hostname_filepath"
   fi
 
   # Start "sudo tor" in the background
@@ -91,11 +94,13 @@ start_tor_and_check_onion_url() {
     onion_exists=$(check_onion_url_exists_in_hostname "$hostname_filepath")
 
     # Check if the onion URL exists in the hostname
-    if [ "$onion_exists" -eq 0 ]; then
+    if [[ "$onion_exists" -eq 0 ]]; then
       # If the onion URL exists, terminate the "sudo tor" process and return 0
       pkill -f "sudo tor"
       return 0
     fi
+
+    sleep 1
 
     # Calculate the elapsed time from the start of the function
     elapsed_time=$(($(date +%s) - start_time))

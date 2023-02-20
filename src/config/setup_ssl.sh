@@ -74,21 +74,20 @@ setup_tor_ssl() {
 
   # Generate and apply certificate.
   generate_ca_cert "$CA_PRIVATE_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME" "$ssl_password"
-
+  
   generate_ssl_certificate "$CA_PUBLIC_KEY_FILENAME" "$CA_PRIVATE_KEY_FILENAME" "$CA_SIGN_SSL_CERT_REQUEST_FILENAME" "$SIGNED_DOMAINS_FILENAME" "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$domains"
-
+  
   verify_certificates "$CA_PUBLIC_KEY_FILENAME" "$SSL_PUBLIC_KEY_FILENAME"
-
+  
   merge_ca_and_ssl_certs "$SSL_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
-
+  
   install_the_ca_cert_as_a_trusted_root_ca "$CA_PUBLIC_KEY_FILENAME" "$CA_PUBLIC_CERT_FILENAME"
-
+  
   add_certs_to_nextcloud "$SSL_PUBLIC_KEY_FILENAME" "$SSL_PRIVATE_KEY_FILENAME" "$MERGED_CA_SSL_CERT_FILENAME"
-
+  
   copy_file "$CA_PUBLIC_KEY_FILENAME" "$ROOT_CA_PEM_PATH" "true"
-
+  
   make_self_signed_root_cert_trusted_on_ubuntu
-  #make_self_signed_root_cert_trusted_on_ubuntu_retry
 }
 
 generate_ca_cert() {
@@ -181,9 +180,11 @@ add_certs_to_nextcloud() {
   sudo cp "$ssl_public_key_filename" /var/snap/nextcloud/current/"$ssl_public_key_filename"
   sudo cp "$ssl_private_key_filename" /var/snap/nextcloud/current/"$ssl_private_key_filename"
   sudo cp "$merged_ca_ssl_cert_filename" /var/snap/nextcloud/current/"$merged_ca_ssl_cert_filename"
+  read -p "Before enable"
 
   # CLI sudo /snap/bin/nextcloud.enable-https custom Says:
   sudo /snap/bin/nextcloud.enable-https custom "/var/snap/nextcloud/current/$ssl_public_key_filename" "/var/snap/nextcloud/current/$ssl_private_key_filename" "/var/snap/nextcloud/current/$merged_ca_ssl_cert_filename"
+  #sudo /snap/bin/nextcloud.enable-https custom "/var/snap/nextcloud/current/cert.pem" "/var/snap/nextcloud/current/cert-key.pem" "/var/snap/nextcloud/current/fullchain.pem"
 }
 
 delete_target_files() {
@@ -201,7 +202,7 @@ delete_target_files() {
   sudo rm -f "/var/snap/nextcloud/current/$SSL_PUBLIC_KEY_FILENAME"
   sudo rm -f "/var/snap/nextcloud/current/$SSL_PRIVATE_KEY_FILENAME"
   sudo rm -f "/var/snap/nextcloud/current/$MERGED_CA_SSL_CERT_FILENAME"
-
+  sudo rm -r "/usr/local/share/ca-certificates/$FIREFOX_CA_DIR"
 }
 
 # On Android (This has been automated)
@@ -255,7 +256,8 @@ add_self_signed_root_cert_to_firefox() {
                }]' $policies_filepath)
 
       # Append the content
-      echo "$new_json_content" >$policies_filepath
+      echo "$new_json_content" | sudo tee $policies_filepath
+
     else
       echo "Your certificate is already added to Firefox."
     fi
