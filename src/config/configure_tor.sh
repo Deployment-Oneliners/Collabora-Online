@@ -79,9 +79,11 @@ start_tor_and_check_onion_url() {
   local new_onion_flag="$3"
 
   if [ "$new_onion_flag" == "true" ]; then
+    read -p "Before deleting"
     rm -f "$hostname_filepath"
+    read -p "after deleting"
   fi
-  
+
   # Make root owner of tor directory.
   sudo chown -R root /var/lib/tor
 
