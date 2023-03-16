@@ -86,6 +86,7 @@ start_tor_and_check_onion_url() {
 
   # Make root owner of tor directory.
   sudo chown -R root /var/lib/tor
+  sudo chmod 700 /var/lib/tor/nextcloud
 
   # Start "sudo tor" in the background
   sudo tor | tee "$tor_log_filepath" >/dev/null
