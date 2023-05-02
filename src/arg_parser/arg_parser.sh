@@ -15,16 +15,10 @@ parse_args() {
   configure_nextcloud_flag='false'
   configure_tor_for_nextcloud_flag='false'
   get_onion_flag='false'
-  new_onion_flag='false'
   nextcloud_pwd_flag='false'
   nextcloud_username_flag='false'
-  setup_boot_script_flag='false'
-  start_tor_flag='false'
 
   uninstall_nextcloud_flag='false'
-
-  # TODO: resolve how to deal with this.
-  install_tor_nextcloud_flag='true'
 
   # $# gives the length/number of the incoming function arguments.
   # the shift command eats the first element of that array, making it shorter.
@@ -41,10 +35,6 @@ parse_args() {
         configure_app_list="$2"
         shift
         shift
-        ;;
-      -b | --boot)
-        setup_boot_script_flag='true'
-        shift # past argument
         ;;
       -cc | --calendar-client)
         calendar_client_flag='true'
@@ -66,9 +56,15 @@ parse_args() {
         configure_tor_for_nextcloud_flag='true'
         shift # past argument
         ;;
-      -no | --new-onion)
-        new_onion_flag='true'
-        shift # past argument
+      -ep | --external-nextcloud-port)
+        local external_nextcloud_port="$2"
+        shift
+        shift
+        ;;
+      -lp | --local-nextcloud-port)
+        local local_nextcloud_port="$2"
+        shift
+        shift
         ;;
       -nu | --nextcloud-username)
         nextcloud_username_flag='true'
@@ -85,10 +81,6 @@ parse_args() {
 
       -o | --get-onion)
         get_onion_flag='true'
-        shift # past argument
-        ;;
-      -s | --start-tor)
-        start_tor_flag='true'
         shift # past argument
         ;;
       -sp | --ssl-password)
@@ -112,10 +104,6 @@ parse_args() {
     esac
   done
 
-  # TODO: check prerequisites.
-  echo "TODO: include $ssl_password call to SSL4tor."
-  echo "TODO: include $new_onion_flag call to SSL4tor."
-
   if [ "$nextcloud_username" != "root" ] && [ "$nextcloud_username" != "" ]; then
     echo "Error, nextcloud_username other than:root is not yet supported because"
     echo "of mysql, which requires a root username, and needs to have the same "
@@ -123,9 +111,9 @@ parse_args() {
     exit 5
   fi
 
-  setup_nextcloud "$configure_nextcloud_flag" "$default_nextcloud_username" "$default_nextcloud_password" "$nextcloud_pwd_flag" "$install_tor_nextcloud_flag" "$nextcloud_username_flag"
-  setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag"
-  start_tor "$setup_boot_script_flag" "$start_tor_flag"
+  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$default_nextcloud_username" "$default_nextcloud_password" "$nextcloud_pwd_flag" "$nextcloud_username_flag"
+  setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
+
   configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
 
   reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"

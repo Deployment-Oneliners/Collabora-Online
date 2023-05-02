@@ -10,9 +10,8 @@ source src/cli_logger.sh
 source src/config/configure_android_apps.sh
 source src/config/configure_khal.sh
 source src/config/configure_nextcloud.sh
-source src/config/configure_tor.sh
+source src/config/configure_tor_for_nextcloud.sh
 source src/config/configure_vdirsyncer.sh
-source src/config/helper_tor_parsing.sh
 source src/connectivity_checks.sh
 source src/helper.sh
 source src/install/install_android_apps.sh
@@ -21,10 +20,12 @@ source src/install/install_apt.sh
 source src/install/install_pip.sh
 source src/install/install_snap.sh
 source src/install/prereq_nextcloud.sh
-source src/run_tor/ensure_tor_runs.sh
 source src/uninstall/uninstall_apk.sh
 source src/verification/assert_tor_settings.sh
+source src/verification/check_tor_settings.sh
 source src/uninstall/uninstaller.sh
+source src/uninstall/uninstall_apt.sh
+source src/uninstall/uninstall_snap.sh
 
 # print the usage if no arguments are given
 [ $# -eq 0 ] && {

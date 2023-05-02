@@ -208,3 +208,16 @@ csv_array_contains_element() {
     echo "NOTFOUND"
   fi
 }
+
+command_output_contains() {
+  local substring="$1"
+  shift
+  # shellcheck disable=SC2124
+  local command_output="$@"
+  if grep -q "$substring" <<<"$command_output"; then
+    #if "$command" | grep -q "$substring"; then
+    echo "FOUND"
+  else
+    echo "NOTFOUND"
+  fi
+}

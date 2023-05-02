@@ -8,9 +8,9 @@
 # Installs and partially sets up Nextcloud and Tor.
 setup_nextcloud() {
   local configure_nextcloud_flag="$1"
-  local default_nextcloud_username="$2"
-  local default_nextcloud_password="$3"
-  local install_tor_nextcloud_flag="$4"
+  local local_nextcloud_port="$2"
+  local default_nextcloud_username="$3"
+  local default_nextcloud_password="$4"
   local nextcloud_pwd_flag="$5"
   local nextcloud_username_flag="$6"
 
@@ -23,15 +23,10 @@ setup_nextcloud() {
     assert_is_non_empty_string "${nextcloud_password}"
   fi
 
-  # Install Tor and Nextcloud.
-  # Used if the user passes: -i or --install-tor-nextcloud to CLI.
-  if [ "$install_tor_nextcloud_flag" == "true" ]; then
-    install_tor_and_nextcloud
-  fi
-
   # Configure Nextcloud
   # Used if the user passes: -cn or --configure-nextcloud to CLI.
   if [ "$configure_nextcloud_flag" == "true" ] || [ "$calendar_client_flag" == "true" ]; then
+    install_tor_and_nextcloud
 
     # Get the nextcloud username and password.
     if [ "$nextcloud_username_flag" == "false" ]; then
@@ -46,14 +41,16 @@ setup_nextcloud() {
   if [ "$configure_nextcloud_flag" == "true" ]; then
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
-    set_nextcloud_port "$LOCAL_NEXTCLOUD_PORT"
+    set_nextcloud_port "$local_nextcloud_port"
   fi
 }
 
 setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
-  local new_onion_flag="$3"
+  local external_nextcloud_port="$3"
+  local local_nextcloud_port="$4"
+  local ssl_password="$5"
 
   # 6.a Proxify calendar app to go over tor to Nextcloud on client.
   # 6.b Verify calendar app goes over tor to Nextcloudon client.
@@ -66,10 +63,11 @@ setup_tor_for_nextcloud() {
   # Configure tor to create and host onion domain for nextcloud.
   # Used if the user passes: -ct or --configure_tor to CLI.
   if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
-    verify_apt_installed "tor"
+    # TODO: call SSL4Tor
+
+    call_ssl4tor "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
+
     # Ensures an onion url is created for Nextcloud.
-    start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "$new_onion_flag"
-    assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
     add_onion_to_nextcloud_trusted_domain
   fi
 
