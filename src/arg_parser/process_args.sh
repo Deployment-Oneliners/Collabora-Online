@@ -20,7 +20,7 @@ setup_nextcloud() {
     echo -n Nextcloud Password:
     read -r -s nextcloud_password
     echo
-    assert_is_non_empty_string "${nextcloud_password}"
+    assert_is_non_empty_string "${nextcloud_password}" "nextcloud_password"
   fi
 
   # Configure Nextcloud
@@ -150,7 +150,7 @@ configure_android_apps() {
     echo -n Nextcloud Password:
     #read -r -s nextcloud_password
     echo
-    assert_is_non_empty_string "${nextcloud_password}"
+    assert_is_non_empty_string "${nextcloud_password}" "nextcloud_password"
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"

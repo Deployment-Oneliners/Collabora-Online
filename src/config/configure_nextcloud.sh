@@ -9,8 +9,8 @@ setup_admin_account_on_snap_nextcloud() {
   admin_pwd="$2"
 
   # Check if admin username and pwd are given.
-  assert_is_non_empty_string "$admin_username"
-  assert_is_non_empty_string "$admin_pwd"
+  assert_is_non_empty_string "$admin_username" "admin_username"
+  assert_is_non_empty_string "$admin_pwd" "admin_pwd"
 
   # TODO: Check if username and password are already set.
   green_msg "\n======================================================\n"

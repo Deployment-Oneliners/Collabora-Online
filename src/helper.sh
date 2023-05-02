@@ -2,8 +2,9 @@
 
 assert_is_non_empty_string() {
   local string="$1"
+  local description="$2"
   if [ "${string}" == "" ]; then
-    echo "Error, the incoming string was empty."
+    red_msg "Error, the incoming string:$description was empty." "true"
     exit 70
   fi
 }

@@ -69,7 +69,7 @@ parse_args() {
       -nu | --nextcloud-username)
         nextcloud_username_flag='true'
         nextcloud_username="$2"
-        assert_is_non_empty_string "${nextcloud_username}"
+        assert_is_non_empty_string "${nextcloud_username}" "nextcloud_username"
         shift # past argument
         shift
         ;;
