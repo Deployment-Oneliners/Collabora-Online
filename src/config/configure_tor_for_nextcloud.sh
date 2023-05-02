@@ -19,7 +19,8 @@ call_ssl4tor() {
   local current_path="$PWD"
 
   # Run command.
-  cd "$SSL4TOR_DIR" && ./src/main.sh \
+  cd "$SSL4TOR_DIR" || exit 6
+  src/main.sh \
     --delete-onion-domain \
     --delete-projects-ssl-certs \
     --delete-root-ca-certs \

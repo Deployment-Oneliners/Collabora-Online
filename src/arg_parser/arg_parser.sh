@@ -86,6 +86,7 @@ parse_args() {
       -sp | --ssl-password)
         ssl_password="$2"
         shift # past argument
+        shift
         ;;
       -un | --uninstall-nextcloud)
         uninstall_nextcloud_flag='true'
