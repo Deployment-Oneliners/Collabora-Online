@@ -33,8 +33,8 @@ setup_admin_account_on_snap_nextcloud() {
   apt_remove "mysql-server-core-*"
   apt_remove "mysql-client-core-*"
   sudo rm -rf /etc/mysql /var/lib/mysql
-  sudo apt autoremove -y
-  sudo apt autoclean
+  sudo apt autoremove -y >>/dev/null 2>&1
+  sudo apt autoclean >>/dev/null 2>&1
 
   # Re-install mysql
   # sudo apt install mysql-server -y
@@ -42,6 +42,7 @@ setup_admin_account_on_snap_nextcloud() {
   sudo systemctl start mysql.service
 
   # Set mysql pwd
+  read -p "Before change password"
   sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
 
   # Install and configure Nextcloud.
