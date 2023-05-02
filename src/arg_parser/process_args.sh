@@ -25,9 +25,8 @@ setup_nextcloud() {
 
   # Configure Nextcloud
   # Used if the user passes: -cn or --configure-nextcloud to CLI.
-  if [ "$configure_nextcloud_flag" == "true" ] || [ "$calendar_client_flag" == "true" ]; then
-    install_tor_and_nextcloud
-
+  # TODO: move into separate function.
+  if [ "$calendar_client_flag" == "true" ]; then
     # Get the nextcloud username and password.
     if [ "$nextcloud_username_flag" == "false" ]; then
       # Specify variable defaults
@@ -39,6 +38,7 @@ setup_nextcloud() {
     fi
   fi
   if [ "$configure_nextcloud_flag" == "true" ]; then
+    configure_nextcloud_flag
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
     set_nextcloud_port "$local_nextcloud_port"
@@ -66,9 +66,6 @@ setup_tor_for_nextcloud() {
     # TODO: call SSL4Tor
 
     call_ssl4tor "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
-
-    # Ensures an onion url is created for Nextcloud.
-    add_onion_to_nextcloud_trusted_domain
   fi
 
   # Used if the user passes: -o or --get-onion to CLI.

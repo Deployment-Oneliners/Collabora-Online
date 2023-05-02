@@ -94,22 +94,3 @@ set_nextcloud_port() {
   # Error code: SSL_ERROR_RX_RECORD_TOO_LONG
 
 }
-
-add_onion_to_nextcloud_trusted_domain() {
-
-  local onion_address
-  onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-
-  # TODO: verify format of incoming onion address.
-
-  #add Hidden Service address like a trusted domain in NextCloud instance
-  sudo /snap/bin/nextcloud.occ config:system:set trusted_domains 1 --value="$onion_address"
-  printf "\nThe Hidden Service address has been added like trusted domain successfully.\n"
-
-  # TODO: verify output:
-  sudo /snap/bin/nextcloud.occ config:system:get trusted_domains
-}
-
-enable_calendar_app_in_nextcloud() {
-  sudo /snap/bin/nextcloud.occ app:install calendar
-}
