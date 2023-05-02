@@ -24,25 +24,33 @@ setup_admin_account_on_snap_nextcloud() {
   #echo "output=$output"
 
   # Remove mysql
-  sudo systemctl stop mysql -y
-  sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  #sudo systemctl stop mysql -y
+  sudo systemctl stop mysql
+  #sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  apt_remove mysql-server
+  apt_remove mysql-client
+  apt_remove mysql-common
+  apt_remove "mysql-server-core-*"
+  apt_remove "mysql-client-core-*"
   sudo rm -rf /etc/mysql /var/lib/mysql
   sudo apt autoremove -y
   sudo apt autoclean
 
   # Re-install mysql
-  sudo apt install mysql-server -y
+  # sudo apt install mysql-server -y
+  ensure_apt_pkg "mysql-server"
   sudo systemctl start mysql.service
 
   # Set mysql pwd
   sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
 
   # Install and configure Nextcloud.
+  # TODO: verify it is not: --database-host="127.0.01" \
   sudo nextcloud.occ maintenance:install \
     --database="mysql" \
     --database-name="nextcloud" \
     --database-user="root" \
-    --database-host="127.0.01" \
+    --database-host="127.0.0.1" \
     --database-pass="mysql_password" \
     --data-dir="/var/snap/nextcloud/common/nextcloud/data" \
     --admin-user="root" \
