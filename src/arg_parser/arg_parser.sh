@@ -110,6 +110,9 @@ parse_args() {
     assert_is_non_empty_string "${nextcloud_password}"
   fi
 
+  if [ "$nextcloud_username" == "" ]; then
+    nextcloud_username="$default_nextcloud_username"
+  fi
   if [ "$nextcloud_username" != "root" ] && [ "$nextcloud_username" != "" ]; then
     echo "Error, nextcloud_username other than:root is not yet supported because"
     echo "of mysql, which requires a root username, and needs to have the same "

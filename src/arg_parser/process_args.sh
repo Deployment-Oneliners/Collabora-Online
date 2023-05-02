@@ -27,6 +27,7 @@ setup_nextcloud() {
     # if [ "$nextcloud_password_flag" == "false" ] && [ "$calendar_client_flag" == "false" ]; then
     if [ "$nextcloud_password" == "" ]; then
       # Specify variable defaults
+      # TODO: raise exception, do not use default password.
       nextcloud_password="$default_nextcloud_password"
     fi
   fi
