@@ -1,9 +1,14 @@
 #!/bin/bash
 
 call_ssl4tor() {
-  local external_nextcloud_port="$1"
-  local local_nextcloud_port="$2"
-  local ssl_password="$3"
+  if [[ "$1" != "" ]] && [[ "$2" != "" ]] && [[ "$3" != "" ]]; then
+    local external_nextcloud_port="$1"
+    local local_nextcloud_port="$2"
+    local ssl_password="$3"
+  else
+    echo "ERROR, incoming args not None."
+    exit 14
+  fi
 
   local github_username="hiveminds"
   local repo_name="ssl4tor"

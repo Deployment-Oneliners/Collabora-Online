@@ -21,7 +21,14 @@ This is when the installation was already done and you would like to retry it.
 ```sh
 src/main.sh -un # uninstall Nextcloud
 src/main.sh -i # install Tor and Nextcloud
-src/main.sh -cn # Configure nextcloud
+src/main.sh -cn # Configure Nextcloud
+
+# Configure https tor for Nextcloud.
+src/main.sh -ct \
+--local-nextcloud-port 7990 \
+--external-nextcloud-port 7995 \
+--ssl-password somepassword
+
 src/main.sh -cs # Enable the Nextcloud Calendar application.
 src/main.sh -h # Setup https/ssl and make firefox trust it.
 src/main.sh -ar Orbot,DAVx5
