@@ -38,7 +38,6 @@ setup_nextcloud() {
     fi
   fi
   if [ "$configure_nextcloud_flag" == "true" ]; then
-    configure_nextcloud_flag
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
     set_nextcloud_port "$local_nextcloud_port"
