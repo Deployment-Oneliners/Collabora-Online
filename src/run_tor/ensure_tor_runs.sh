@@ -14,17 +14,9 @@ connect_tor() {
 start_tor() {
   local setup_boot_script_flag="$1"
   local start_tor_flag="$2"
-  local set_https_flag="$3"
-  local ssl_password="$4"
 
   # Verify tor is installed.
   verify_apt_installed "tor"
-
-  # First ensure onion domain exists, then create SSL certificates for tor.
-  if [ "$set_https_flag" == "true" ]; then
-    read -p "TODO: set up https for nextcloud using SSL4Tor."
-    exit 6
-  fi
 
   # Start tor.
   if [ "$start_tor_flag" == "true" ]; then
@@ -34,7 +26,7 @@ start_tor() {
 
   # Used if the user passes: -b or --boot to CLI.
   if [ "$setup_boot_script_flag" == "true" ]; then
-    read -p "TODO: setup_boot_script_flag"
+    red_msg "TODO: setup_boot_script_flag"
     exit 6
   fi
 }

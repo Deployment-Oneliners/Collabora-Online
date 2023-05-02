@@ -46,7 +46,7 @@ install_android_app() {
   if [ "$app_exists" != "package:$android_app_name" ]; then
     # TODO: if output = adb: failed to install <filename.apk>: suggest to user
     # this is most likely because of bad usb cable.
-    adb install "$apk_filename" 
+    adb install "$apk_filename"
   else
     echo "Removing app: $android_app_name"
     remove_android_app "$android_app_name" &>/dev/null

@@ -4,48 +4,6 @@
 
 # Load used functions, from path relative to this main.sh.
 # shellcheck source=/dev/null
-source src/cli_logger.sh
-source src/config/configure_android_apps.sh
-source src/config/configure_khal.sh
-source src/config/configure_nextcloud.sh
-source src/config/configure_tor.sh
-source src/config/configure_vdirsyncer.sh
-source src/config/helper_tor_parsing.sh
-source src/config/setup_ssl.sh
-source src/connectivity_checks.sh
-source src/helper.sh
-source src/install/install_android_apps.sh
-source src/install/install_apk.sh
-source src/install/install_apt.sh
-source src/install/install_pip.sh
-source src/install/install_snap.sh
-source src/install/prereq_nextcloud.sh
-source src/run_tor/ensure_tor_runs.sh
-source src/uninstall/uninstall_apk.sh
-source src/verification/assert_tor_settings.sh
-
-# Tor configuration settings
-#Setup variables (change values if you need)
-TOR_SERVICE_DIR=/var/lib/tor
-NEXTCLOUD_HIDDEN_SERVICE_DIR=nextcloud
-NEXTCLOUD_HIDDEN_SERVICE_PATH="$TOR_SERVICE_DIR/$NEXTCLOUD_HIDDEN_SERVICE_DIR"
-HIDDEN_SERVICE_PORT=443
-LOCAL_NEXTCLOUD_PORT=81
-#HIDDEN_SERVICE_PORT=666
-#LOCAL_NEXTCLOUD_PORT=90
-TORRC_FILEPATH=/etc/tor/torrc
-TOR_LOG_FILEPATH="tor_log.txt"
-
-USERNAME=$(whoami)
-ROOT_CA_DIR="/home/$USERNAME"
-ROOT_CA_PEM_PATH="$ROOT_CA_DIR/$CA_PUBLIC_KEY_FILENAME"
-VDIRSYNCER_CONFIG_PATH="/home/$USERNAME/.config/vdirsyncer"
-VDIRSYNCER_CONFIG_FILENAME="config"
-VDIRSYNCER_STATUS_PATH="/home/$USERNAME/.config/vdirsyncer/status/"
-VDIRSYNCER_CONTACTS_PATH="/home/$USERNAME/Documents/Contacts/"
-VDIRSYNCER_CALENDAR_PATH="/home/$USERNAME/Documents/Calendar/"
-KHAL_CONFIG_PATH="/home/$USERNAME/.config/khal"
-KHAL_CONFIG_FILENAME="config"
 
 # Installs and partially sets up Nextcloud and Tor.
 setup_nextcloud() {
@@ -201,14 +159,14 @@ configure_android_apps() {
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    
+
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Configuring: $app_name"
         configure_orbot_apk
       elif [ "$app_name" == "DAVx5" ]; then
-        
-        # Aqcuire sudo permission to configure DAVx5 throug adb and appcommander.
+
+        # Acquire sudo permission to configure DAVx5 through adb and appcommander.
         sudo echo
 
         # Verify orbot has been configured after this app is installed.
@@ -219,7 +177,7 @@ configure_android_apps() {
         assert_element_one_before_two_in_csv "Orbot" "DAVx5" "$csv_app_list"
 
         echo "(Re)-Configuring: $app_name"
-        configure_davx5_apk "$nextcloud_username" "$nextcloud_password" "$LOCAL_NEXTCLOUD_PORT"
+        configure_davx5_apk "$nextcloud_username" "$nextcloud_password"
       fi
     done
   fi
