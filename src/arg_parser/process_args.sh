@@ -38,6 +38,7 @@ setup_nextcloud() {
     fi
   fi
   if [ "$configure_nextcloud_flag" == "true" ]; then
+    install_tor_and_nextcloud
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
     set_nextcloud_port "$local_nextcloud_port"

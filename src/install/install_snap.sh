@@ -24,7 +24,7 @@ verify_snap_installed() {
 
   # Throw error if snap package is not yet installed.
   if [[ "$(snap_package_is_installed "$snap_package_name")" != "FOUND" ]]; then
-    red_msg "Error, the snap package ${snap_package_name} is not installed."
+    red_msg "Error, the snap package ${snap_package_name} is not installed." "true"
     exit 3 # TODO: update exit status.
   else
     green_msg "Verified snap package ${snap_package_name} is installed."
