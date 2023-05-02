@@ -42,6 +42,7 @@ ensure_https_github_repo_is_cloned() {
   # Remove target directory if it already exists.
   if [[ ! -d "$target_directory" ]]; then
     git clone --quiet https://github.com/"$github_username"/"$github_repository".git "$target_directory"
+    sleep 5
   else
     local current_path="$PWD"
 
