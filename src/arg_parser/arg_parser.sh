@@ -15,9 +15,7 @@ parse_args() {
   configure_nextcloud_flag='false'
   configure_tor_for_nextcloud_flag='false'
   get_onion_flag='false'
-  nextcloud_pwd_flag='false'
-  nextcloud_username_flag='false'
-
+  nextcloud_password_flag='false'
   uninstall_nextcloud_flag='false'
 
   # $# gives the length/number of the incoming function arguments.
@@ -67,15 +65,13 @@ parse_args() {
         shift
         ;;
       -nu | --nextcloud-username)
-        nextcloud_username_flag='true'
         nextcloud_username="$2"
         assert_is_non_empty_string "${nextcloud_username}" "nextcloud_username"
         shift # past argument
         shift
         ;;
       -np | --nextcloud-password)
-        nextcloud_pwd_flag='true'
-        #nextcloud_pwd="$2" # Don't allow vissibly typing pwd in command line.
+        nextcloud_password_flag='true'
         shift # past argument
         ;;
 
@@ -105,6 +101,15 @@ parse_args() {
     esac
   done
 
+  # Set Nextcloud password without displaying it in terminal.
+  if [ "$nextcloud_password_flag" == "true" ]; then
+    echo -n Nextcloud Password:
+    # shellcheck disable=SC2162
+    read -s nextcloud_password
+    echo
+    assert_is_non_empty_string "${nextcloud_password}"
+  fi
+
   if [ "$nextcloud_username" != "root" ] && [ "$nextcloud_username" != "" ]; then
     echo "Error, nextcloud_username other than:root is not yet supported because"
     echo "of mysql, which requires a root username, and needs to have the same "
@@ -112,7 +117,7 @@ parse_args() {
     exit 5
   fi
 
-  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$default_nextcloud_username" "$default_nextcloud_password" "$nextcloud_pwd_flag" "$nextcloud_username_flag"
+  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$default_nextcloud_username" "$default_nextcloud_password" "$nextcloud_password" "$nextcloud_username"
   setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
 
   configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"

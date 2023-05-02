@@ -3,10 +3,8 @@
 #Finish the installation of NextCloud and configuring the
 #admin account credentials.
 setup_admin_account_on_snap_nextcloud() {
-  local admin_username
-  local admin_pwd
-  admin_username="$1"
-  admin_pwd="$2"
+  local admin_username="$1"
+  local admin_pwd="$2"
 
   # Check if admin username and pwd are given.
   assert_is_non_empty_string "$admin_username" "admin_username"

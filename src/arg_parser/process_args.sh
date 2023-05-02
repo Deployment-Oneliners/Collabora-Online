@@ -11,28 +11,21 @@ setup_nextcloud() {
   local local_nextcloud_port="$2"
   local default_nextcloud_username="$3"
   local default_nextcloud_password="$4"
-  local nextcloud_pwd_flag="$5"
-  local nextcloud_username_flag="$6"
-
-  # Set Nextcloud password without displaying it in terminal.
-  # Used if the user passes: -np or --nextcloud-password to CLI.
-  if [ "$nextcloud_pwd_flag" == "true" ] || [ "$calendar_client_flag" == "true" ]; then
-    echo -n Nextcloud Password:
-    read -r -s nextcloud_password
-    echo
-    assert_is_non_empty_string "${nextcloud_password}" "nextcloud_password"
-  fi
+  local nextcloud_password="$5"
+  local nextcloud_username="$6"
 
   # Configure Nextcloud
   # Used if the user passes: -cn or --configure-nextcloud to CLI.
   # TODO: move into separate function.
   if [ "$calendar_client_flag" == "true" ]; then
     # Get the nextcloud username and password.
-    if [ "$nextcloud_username_flag" == "false" ]; then
+    # if [ "$nextcloud_username_flag" == "false" ]; then
+    if [ "$nextcloud_username" == "" ]; then
       # Specify variable defaults
       nextcloud_username="$default_nextcloud_username"
     fi
-    if [ "$nextcloud_pwd_flag" == "false" ] && [ "$calendar_client_flag" == "false" ]; then
+    # if [ "$nextcloud_password_flag" == "false" ] && [ "$calendar_client_flag" == "false" ]; then
+    if [ "$nextcloud_password" == "" ]; then
       # Specify variable defaults
       nextcloud_password="$default_nextcloud_password"
     fi
