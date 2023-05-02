@@ -95,8 +95,7 @@ setup_nextcloud() {
 setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
-  local new_onion_flag
-  new_onion_flag="$3"
+  local new_onion_flag="$3"
 
   # 6.a Proxify calendar app to go over tor to Nextcloud on client.
   # 6.b Verify calendar app goes over tor to Nextcloudon client.
@@ -110,11 +109,6 @@ setup_tor_for_nextcloud() {
   # Used if the user passes: -ct or --configure_tor to CLI.
   if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
     verify_apt_installed "tor"
-
-    # Setups up Nextcloud folder for tor private and public key to generate
-    # onion domain.
-    configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
-
     # Ensures an onion url is created for Nextcloud.
     start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "$new_onion_flag"
     assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"

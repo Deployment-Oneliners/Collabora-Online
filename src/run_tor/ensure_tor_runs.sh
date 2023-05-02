@@ -22,13 +22,8 @@ start_tor() {
 
   # First ensure onion domain exists, then create SSL certificates for tor.
   if [ "$set_https_flag" == "true" ]; then
-    assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-
-    local onion_address
-    onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-    setup_tor_ssl "$onion_address" "$ssl_password"
-
-    # TODO: add certificate to computer and/or Firefox.
+    read -p "TODO: set up https for nextcloud using SSL4Tor."
+    exit 6
   fi
 
   # Start tor.
@@ -39,7 +34,8 @@ start_tor() {
 
   # Used if the user passes: -b or --boot to CLI.
   if [ "$setup_boot_script_flag" == "true" ]; then
-    echo "TODO: setup_boot_script_flag"
+    read -p "TODO: setup_boot_script_flag"
+    exit 6
   fi
 }
 

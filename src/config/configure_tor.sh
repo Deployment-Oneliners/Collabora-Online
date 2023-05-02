@@ -20,37 +20,6 @@ verify_has_two_consecutive_lines() {
   fi
 }
 
-configure_tor() {
-  local hidden_service_port="$1"
-  local local_nextcloud_port="$2"
-  local nextcloud_hidden_service_path="$3"
-  local torrc_filepath="$4"
-
-  # A. Get torr config filename.
-  # B. Verify torr configuration file exists.
-  manual_assert_file_exists "$torrc_filepath"
-
-  # C. Specify what the desired content of that file is. External example:
-  # # NextCloud hidden service configuration."
-
-  # So try C.2:
-  # https://stackoverflow.com/a/38797241/7437143
-  # Proxy tor port hidden_service_port to local_nextcloud_port
-  local torrc_line_1
-  torrc_line_1="HiddenServiceDir $nextcloud_hidden_service_path/"
-  local torrc_line_2
-  torrc_line_2="HiddenServicePort $hidden_service_port 127.0.0.1:$local_nextcloud_port"
-
-  # E. If that content is not in the torrc file, append it at file end.
-  append_lines_if_not_found "$torrc_line_1" "$torrc_line_2" "$torrc_filepath"
-
-  # F. Verify that content is in the file.
-  verify_has_two_consecutive_lines "$torrc_line_1" "$torrc_line_2" "$torrc_filepath"
-
-  # Initiate tor once to create the onion domain.
-  start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "true"
-}
-
 #!/usr/bin/env bash
 
 #######################################

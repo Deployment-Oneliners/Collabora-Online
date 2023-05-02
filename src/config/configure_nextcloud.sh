@@ -52,8 +52,6 @@ setup_admin_account_on_snap_nextcloud() {
 
   # TODO: verify the nextcloud server is live, and that the credentials work.
   verify_nextcloud_creds_are_set_correct
-
-  add_onion_to_nextcloud_trusted_domain
 }
 
 verify_nextcloud_creds_are_set_correct() {
