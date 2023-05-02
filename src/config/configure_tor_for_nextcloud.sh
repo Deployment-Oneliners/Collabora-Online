@@ -54,9 +54,9 @@ ensure_https_github_repo_is_cloned() {
 }
 
 assert_repo_is_cloned() {
-  local target_directory="$1"
-  local github_username="$2"
-  local github_repository="$3"
+  local github_username="$1"
+  local github_repository="$2"
+  local target_directory="$3"
 
   # Assert the repository is cloned.
   if [[ ! -d "$target_directory" ]]; then
