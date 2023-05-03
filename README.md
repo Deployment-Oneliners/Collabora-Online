@@ -23,11 +23,16 @@ src/main.sh -un # uninstall Nextcloud
 src/main.sh -i # install Tor and Nextcloud
 src/main.sh -cn # Configure Nextcloud
 
+src/main.sh --configure-nextcloud \
+  --nextcloud-password \
+  --verbose
+
 # Configure https tor for Nextcloud.
-src/main.sh -ct \
+src/main.sh --configure-tor \
   --local-nextcloud-port 7990 \
   --external-nextcloud-port 7995 \
-  --ssl-password somepassword
+  --ssl-password somepassword \
+  --verbose
 
 src/main.sh -cs # Enable the Nextcloud Calendar application.
 src/main.sh -h # Setup https/ssl and make firefox trust it.

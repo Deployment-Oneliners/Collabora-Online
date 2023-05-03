@@ -113,6 +113,9 @@ parse_args() {
   if [ "$nextcloud_username" == "" ]; then
     nextcloud_username="$default_nextcloud_username"
   fi
+  if [ "$nextcloud_password" == "" ]; then
+    nextcloud_password="$default_nextcloud_password"
+  fi
   if [ "$nextcloud_username" != "root" ] && [ "$nextcloud_username" != "" ]; then
     echo "Error, nextcloud_username other than:root is not yet supported because"
     echo "of mysql, which requires a root username, and needs to have the same "
@@ -120,7 +123,7 @@ parse_args() {
     exit 5
   fi
 
-  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$default_nextcloud_username" "$default_nextcloud_password" "$nextcloud_password" "$nextcloud_username"
+  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
   setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
 
   configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"

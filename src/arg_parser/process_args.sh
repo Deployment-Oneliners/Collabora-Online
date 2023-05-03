@@ -9,28 +9,9 @@
 setup_nextcloud() {
   local configure_nextcloud_flag="$1"
   local local_nextcloud_port="$2"
-  local default_nextcloud_username="$3"
-  local default_nextcloud_password="$4"
-  local nextcloud_password="$5"
-  local nextcloud_username="$6"
+  local nextcloud_password="$3"
+  local nextcloud_username="$4"
 
-  # Configure Nextcloud
-  # Used if the user passes: -cn or --configure-nextcloud to CLI.
-  # TODO: move into separate function.
-  if [ "$calendar_client_flag" == "true" ]; then
-    # Get the nextcloud username and password.
-    # if [ "$nextcloud_username_flag" == "false" ]; then
-    if [ "$nextcloud_username" == "" ]; then
-      # Specify variable defaults
-      nextcloud_username="$default_nextcloud_username"
-    fi
-    # if [ "$nextcloud_password_flag" == "false" ] && [ "$calendar_client_flag" == "false" ]; then
-    if [ "$nextcloud_password" == "" ]; then
-      # Specify variable defaults
-      # TODO: raise exception, do not use default password.
-      nextcloud_password="$default_nextcloud_password"
-    fi
-  fi
   if [ "$configure_nextcloud_flag" == "true" ]; then
     install_tor_and_nextcloud
     verify_snap_installed "nextcloud"
