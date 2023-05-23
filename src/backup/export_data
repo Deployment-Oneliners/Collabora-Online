@@ -3,7 +3,6 @@
 # sudo ./export_data -a -b -c -d
 
 # First define globals that are also used at source imports.
-#SNAP="src/common"
 SNAP_DATA=/var/snap/nextcloud/current/
 MYSQL_ROOT_OPTION_FILE="$SNAP_DATA/mysql/root.ini"
 CUSTOM_NEXTCLOUD_DATADIR="/var/snap/nextcloud/common/nextcloud/data"
