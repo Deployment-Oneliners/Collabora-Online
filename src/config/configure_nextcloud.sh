@@ -46,12 +46,11 @@ setup_admin_account_on_snap_nextcloud() {
   sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
 
   # Install and configure Nextcloud.
-  # TODO: verify it is not: --database-host="127.0.01" \
   sudo nextcloud.occ maintenance:install \
     --database="mysql" \
     --database-name="nextcloud" \
     --database-user="root" \
-    --database-host="127.0.0.1" \
+    --database-host="0.0.0.0" \
     --database-pass="mysql_password" \
     --data-dir="/var/snap/nextcloud/common/nextcloud/data" \
     --admin-user="root" \

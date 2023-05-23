@@ -20,18 +20,15 @@ This is when the installation was already done and you would like to retry it.
 
 ```sh
 src/main.sh -un # uninstall Nextcloud
-#src/main.sh -i # install Tor and Nextcloud
-src/main.sh -cn # Configure Nextcloud
 
 src/main.sh --configure-nextcloud \
-  --nextcloud-password \
   --verbose
 
 # Configure https tor for Nextcloud.
 src/main.sh --configure-tor \
   --local-http-nextcloud-port 7990 \
-  --local-https-nextcloud-port 7995 \
-  --external-nextcloud-port 7995 \
+  --local-https-nextcloud-port 443 \
+  --external-nextcloud-port 443 \
   --ssl-password somepassword \
   --verbose
 
