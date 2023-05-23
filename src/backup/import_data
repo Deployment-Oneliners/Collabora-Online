@@ -159,8 +159,8 @@ if [ "$do_import_database" = true ]; then
 fi
 
 if [ "$do_import_config" = true ]; then
-  # import_config "$backup_dir"
-  read -p "TODO: (re-enable) importing config."
+  import_config "$backup_dir"
+  read -p "Re-enabled importing config."
 fi
 
 if [ "$do_import_data" = true ]; then
