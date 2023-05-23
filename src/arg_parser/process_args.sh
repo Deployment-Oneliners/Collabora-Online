@@ -17,6 +17,9 @@ setup_nextcloud() {
     install_tor_and_nextcloud
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
+
+    #sudo ufw allow 80,443/tcp
+    sudo ufw allow "$local_http_nextcloud_port","$local_https_nextcloud_port"/tcp
     set_nextcloud_port "$local_http_nextcloud_port"
     set_nextcloud_port "$local_https_nextcloud_port" "true"
   fi

@@ -22,14 +22,14 @@ This is when the installation was already done and you would like to retry it.
 src/main.sh -un # uninstall Nextcloud
 
 src/main.sh --configure-nextcloud \
-  --local-http-nextcloud-port 7990 \
+  --local-http-nextcloud-port 80 \
   --local-https-nextcloud-port 443 \
   --external-nextcloud-port 443 \
   --verbose
 
 # Configure https tor for Nextcloud.
 src/main.sh --configure-tor \
-  --local-http-nextcloud-port 7990 \
+  --local-http-nextcloud-port 80 \
   --local-https-nextcloud-port 443 \
   --external-nextcloud-port 443 \
   --ssl-password somepassword \
