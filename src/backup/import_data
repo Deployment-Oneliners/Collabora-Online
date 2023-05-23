@@ -1,13 +1,8 @@
 #!/bin/bash
-
-# sudo ./import-data /home/name/git/backup0/20230127-034839
-# sudo ./import-data /home/name/git/backup0/20230127-105653
-# sudo ./import-data /home/name/git/backup0/20230127-112224 # without appointment
-# sudo ./import-data /home/name/git/backup0/20230127-112545 # with appointment
+# sudo ./import_data /home/name/git/backup0/20230523-212316
 
 source "nextcloud_utilities"
 # shellcheck source=src/mysql/utilities/mysql-utilities
-# . "$SNAP/utilities/mysql-utilities"
 source "mysql_utilities"
 source common_utilities
 
@@ -20,11 +15,6 @@ SNAP="src/common"
 SNAP_DATA=/var/snap/nextcloud/current/
 MYSQL_ROOT_OPTION_FILE="$SNAP_DATA/mysql/root.ini"
 CUSTOM_NEXTCLOUD_DATADIR="/var/snap/nextcloud/common/nextcloud/data"
-
-# shellcheck source=src/nextcloud/utilities/nextcloud-utilities
-
-# shellcheck disable=SC2119
-#wait_for_mysql
 
 COMMAND="nextcloud.import"
 
@@ -76,7 +66,7 @@ import_database() {
 
 # Used.
 import_config() {
-  backup_dir="$1"
+  local backup_dir="$1"
   config_backup="${backup_dir}/config.php"
   database_password="$(mysql_get_nextcloud_password)"
   echo "database_password=$database_password"

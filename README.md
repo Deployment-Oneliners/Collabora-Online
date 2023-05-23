@@ -35,6 +35,20 @@ src/main.sh -ar Orbot,DAVx5
 src/main.sh -ac Orbot,DAVx5 -nu root -np
 ```
 
+## Backup
+
+To create a backup, run:
+
+```sh
+sudo ./export_data -a -b -c -d
+```
+
+That creates a backup file, which can be imported with (e.g.):
+
+```sh
+sudo ./import_data -a -b -c -d /home/name/git/backup0/20230523-212316
+```
+
 ## Testing
 
 Put your unit test files (with extension .bats) in folder: `/test/`
