@@ -3,7 +3,7 @@
 call_ssl4tor() {
   if [[ "$1" != "" ]] && [[ "$2" != "" ]] && [[ "$3" != "" ]]; then
     local external_nextcloud_port="$1"
-    local local_nextcloud_port="$2"
+    local local_https_nextcloud_port="$2"
     local ssl_password="$3"
   else
     echo "ERROR, incoming args not None."
@@ -25,7 +25,7 @@ call_ssl4tor() {
     --delete-projects-ssl-certs \
     --delete-root-ca-certs \
     --firefox-to-apt \
-    --services "$local_nextcloud_port:nextcloud:$external_nextcloud_port" \
+    --services "$local_https_nextcloud_port:nextcloud:$external_nextcloud_port" \
     --ssl-password "$ssl_password" \
     --get-onion-domain
 

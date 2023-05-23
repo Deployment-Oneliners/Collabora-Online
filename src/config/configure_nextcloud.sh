@@ -87,9 +87,15 @@ verify_nextcloud_creds_are_set_correct() {
 #Configure the NextCloud port to be used.
 set_nextcloud_port() {
   local nextcloud_port="$1"
+  local use_https="$2"
 
-  yellow_msg "\nConfiguring NextCloud:${nextcloud_port}, please wait...\n"
-  sudo snap set nextcloud ports.http="${nextcloud_port}"
+  if [[ "$use_https" == "true" ]]; then
+    yellow_msg "\nConfiguring https NextCloud:${nextcloud_port} port, please wait...\n"
+    sudo snap set nextcloud ports.https="${nextcloud_port}"
+  else
+    yellow_msg "\nConfiguring http NextCloud:${nextcloud_port} port, please wait...\n"
+    sudo snap set nextcloud ports.http="${nextcloud_port}"
+  fi
   # TODO: verify nextcloud port is set successfully.
 
   #The website should display:

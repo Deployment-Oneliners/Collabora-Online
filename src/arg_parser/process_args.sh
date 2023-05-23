@@ -8,15 +8,17 @@
 # Installs and partially sets up Nextcloud and Tor.
 setup_nextcloud() {
   local configure_nextcloud_flag="$1"
-  local local_nextcloud_port="$2"
-  local nextcloud_password="$3"
-  local nextcloud_username="$4"
+  local local_http_nextcloud_port="$2"
+  local local_https_nextcloud_port="$3"
+  local nextcloud_password="$4"
+  local nextcloud_username="$5"
 
   if [ "$configure_nextcloud_flag" == "true" ]; then
     install_tor_and_nextcloud
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
-    set_nextcloud_port "$local_nextcloud_port"
+    set_nextcloud_port "$local_http_nextcloud_port"
+    set_nextcloud_port "$local_https_nextcloud_port" "true"
   fi
 }
 
@@ -24,7 +26,7 @@ setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
   local external_nextcloud_port="$3"
-  local local_nextcloud_port="$4"
+  local local_https_nextcloud_port="$4"
   local ssl_password="$5"
 
   # 6.a Proxify calendar app to go over tor to Nextcloud on client.
@@ -40,7 +42,7 @@ setup_tor_for_nextcloud() {
   if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
     # TODO: call SSL4Tor
 
-    call_ssl4tor "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
+    call_ssl4tor "$external_nextcloud_port" "$local_https_nextcloud_port" "$ssl_password"
   fi
 
   # Used if the user passes: -o or --get-onion to CLI.

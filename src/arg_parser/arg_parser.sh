@@ -59,8 +59,13 @@ parse_args() {
         shift
         shift
         ;;
-      -lp | --local-nextcloud-port)
-        local local_nextcloud_port="$2"
+      -lhp | --local-http-nextcloud-port)
+        local local_http_nextcloud_port="$2"
+        shift
+        shift
+        ;;
+      -lhsp | --local-https-nextcloud-port)
+        local local_https_nextcloud_port="$2"
         shift
         shift
         ;;
@@ -123,8 +128,8 @@ parse_args() {
     exit 5
   fi
 
-  setup_nextcloud "$configure_nextcloud_flag" "$local_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
-  setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_nextcloud_port" "$ssl_password"
+  setup_nextcloud "$configure_nextcloud_flag" "$local_http_nextcloud_port" "$local_https_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
+  setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_https_nextcloud_port" "$ssl_password"
 
   configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
 
