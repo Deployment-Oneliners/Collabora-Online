@@ -161,7 +161,7 @@ fi
 
 if [ "$do_import_config" = true ]; then
   # import_config "$backup_dir"
-  echo "Skip importing config."
+  read -p "TODO: (re-enable) importing config."
 fi
 
 if [ "$do_import_data" = true ]; then
