@@ -2,12 +2,7 @@
 # sudo ./export_data
 # sudo ./export_data -a -b -c -d
 
-source nextcloud_utilities
-source common_utilities
-if [ "$(id -u)" -ne 0 ]; then
-  echo "This utility needs to run as root"
-  exit 1
-fi
+# First define globals that are also used at source imports.
 #SNAP="src/common"
 SNAP_DATA=/var/snap/nextcloud/current/
 MYSQL_ROOT_OPTION_FILE="$SNAP_DATA/mysql/root.ini"
@@ -17,6 +12,13 @@ COMMAND="nextcloud.export"
 # BACKUP_DIRECTORY="${SNAP_COMMON}/backups"
 BACKUP_DIRECTORY="/home/name/git/backup0"
 FORMAT="1"
+
+source nextcloud_utilities
+source common_utilities
+if [ "$(id -u)" -ne 0 ]; then
+  echo "This utility needs to run as root"
+  exit 1
+fi
 
 # Used.
 print_usage() {
