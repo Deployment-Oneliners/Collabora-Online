@@ -134,11 +134,12 @@ chmod 750 "$backup"
 echo "$FORMAT" >"${backup}/format"
 
 # Enable maintenance mode so data can't change out from under us
-if ! enable_maintenance_mode; then
-  echo "Unable to enter maintenance mode"
-  exit 1
-fi
-trap 'disable_maintenance_mode' EXIT
+sudo nextcloud.occ maintenance:mode --on
+# if ! enable_maintenance_mode; then
+# echo "Unable to enter maintenance mode"
+# exit 1
+# fi
+# trap 'disable_maintenance_mode' EXIT
 
 if [ "$do_export_apps" = true ]; then
   read -p "Exporting apps"
