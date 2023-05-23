@@ -2,8 +2,9 @@
 
 assert_is_non_empty_string() {
   local string="$1"
+  local description="$2"
   if [ "${string}" == "" ]; then
-    echo "Error, the incoming string was empty."
+    red_msg "Error, the incoming string:$description was empty." "true"
     exit 70
   fi
 }
@@ -205,6 +206,19 @@ csv_array_contains_element() {
     fi
   done
   if [[ $found_one != "FOUND" ]]; then
+    echo "NOTFOUND"
+  fi
+}
+
+command_output_contains() {
+  local substring="$1"
+  shift
+  # shellcheck disable=SC2124
+  local command_output="$@"
+  if grep -q "$substring" <<<"$command_output"; then
+    #if "$command" | grep -q "$substring"; then
+    echo "FOUND"
+  else
     echo "NOTFOUND"
   fi
 }

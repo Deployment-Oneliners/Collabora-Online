@@ -1,28 +1,18 @@
 #!/usr/bin/env bash
 
-# Usage: ensure_snap_pkg <PKG>
-# Takes the name of a snap package to install if not already installed.
+# Usage: ensure_apt_pkg <PKG> <APT_UPDATE>
+# Takes the name of a package to install if not already installed,
+# and optionally a 1 if apt update should be run after installation
+# has finished.
 ensure_snap_pkg() {
-  local snap_package_name
-  snap_package_name="${1}"
-
-  # printf "\\n\\n Checking ${snap_package_name} in the system...\\n\\n\\n"
-  printf '\\n\\n Checking %s in the system...\\n\\n\\n' "${snap_package_name}".
-
-  # Determine if snap package is installed or not.
-  local snap_pckg_exists
-  snap_pckg_exists=$(snap list | grep "${snap_package_name}")
+  local snap_package_name="${1}"
 
   # Install snap package if snap package is not yet installed.
-  if [ "$snap_pckg_exists" == "" ]; then
-    printf "=============================\\n"
-    red_msg " ${snap_package_name} is not installed. Installing now.\\n"
-    printf "==============================\\n\\n"
-    sudo snap install "${snap_package_name}"
+  if [[ "$(snap_package_is_installed "$snap_package_name")" != "FOUND" ]]; then
+    yellow_msg " ${snap_package_name} is not installed. Installing now."
+    sudo snap install "${snap_package_name}" >>/dev/null 2>&1
   else
-    printf "=========================\\n"
-    yellow_msg " ${snap_package_name} is installed\\n"
-    printf "=========================\\n"
+    green_msg " ${snap_package_name} is installed"
   fi
 
   verify_snap_installed "${snap_package_name}"
@@ -32,19 +22,11 @@ ensure_snap_pkg() {
 verify_snap_installed() {
   local snap_package_name="$1"
 
-  # Determine if snap package is installed or not.
-  local snap_pckg_exists
-  snap_pckg_exists=$(snap list | grep "${snap_package_name}")
-
   # Throw error if snap package is not yet installed.
-  if [ "$snap_pckg_exists" == "" ]; then
-    printf "==========================\\n"
-    red_msg "Error, the snap package ${snap_package_name} is not installed.\\n"
-    printf "==========================\\n\\n"
+  if [[ "$(snap_package_is_installed "$snap_package_name")" != "FOUND" ]]; then
+    red_msg "Error, the snap package ${snap_package_name} is not installed." "true"
     exit 3 # TODO: update exit status.
   else
-    printf "======================\\n"
-    green_msg "Verified snap package ${snap_package_name} is installed.\\n"
-    printf "======================\\n"
+    green_msg "Verified snap package ${snap_package_name} is installed."
   fi
 }

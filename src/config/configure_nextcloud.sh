@@ -3,14 +3,12 @@
 #Finish the installation of NextCloud and configuring the
 #admin account credentials.
 setup_admin_account_on_snap_nextcloud() {
-  local admin_username
-  local admin_pwd
-  admin_username="$1"
-  admin_pwd="$2"
+  local admin_username="$1"
+  local admin_pwd="$2"
 
   # Check if admin username and pwd are given.
-  assert_is_non_empty_string "$admin_username"
-  assert_is_non_empty_string "$admin_pwd"
+  assert_is_non_empty_string "$admin_username" "admin_username"
+  assert_is_non_empty_string "$admin_pwd" "admin_pwd"
 
   # TODO: Check if username and password are already set.
   green_msg "\n======================================================\n"
@@ -26,17 +24,25 @@ setup_admin_account_on_snap_nextcloud() {
   #echo "output=$output"
 
   # Remove mysql
-  sudo systemctl stop mysql -y
-  sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  #sudo systemctl stop mysql -y
+  sudo systemctl stop mysql
+  #sudo apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-* -y
+  apt_remove mysql-server
+  apt_remove mysql-client
+  apt_remove mysql-common
+  apt_remove "mysql-server-core-*"
+  apt_remove "mysql-client-core-*"
   sudo rm -rf /etc/mysql /var/lib/mysql
-  sudo apt autoremove -y
-  sudo apt autoclean
+  sudo apt autoremove -y >>/dev/null 2>&1
+  sudo apt autoclean >>/dev/null 2>&1
 
   # Re-install mysql
-  sudo apt install mysql-server -y
+  # sudo apt install mysql-server -y
+  ensure_apt_pkg "mysql-server"
   sudo systemctl start mysql.service
 
   # Set mysql pwd
+  read -p "Before change password"
   sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
 
   # Install and configure Nextcloud.
@@ -44,7 +50,7 @@ setup_admin_account_on_snap_nextcloud() {
     --database="mysql" \
     --database-name="nextcloud" \
     --database-user="root" \
-    --database-host="127.0.01" \
+    --database-host="0.0.0.0" \
     --database-pass="mysql_password" \
     --data-dir="/var/snap/nextcloud/common/nextcloud/data" \
     --admin-user="root" \
@@ -52,8 +58,6 @@ setup_admin_account_on_snap_nextcloud() {
 
   # TODO: verify the nextcloud server is live, and that the credentials work.
   verify_nextcloud_creds_are_set_correct
-
-  add_onion_to_nextcloud_trusted_domain
 }
 
 verify_nextcloud_creds_are_set_correct() {
@@ -82,9 +86,15 @@ verify_nextcloud_creds_are_set_correct() {
 #Configure the NextCloud port to be used.
 set_nextcloud_port() {
   local nextcloud_port="$1"
+  local use_https="$2"
 
-  yellow_msg "\nConfiguring NextCloud:${nextcloud_port}, please wait...\n"
-  sudo snap set nextcloud ports.http="${nextcloud_port}"
+  if [[ "$use_https" == "true" ]]; then
+    yellow_msg "\nConfiguring https NextCloud:${nextcloud_port} port, please wait...\n"
+    sudo snap set nextcloud ports.https="${nextcloud_port}"
+  else
+    yellow_msg "\nConfiguring http NextCloud:${nextcloud_port} port, please wait...\n"
+    sudo snap set nextcloud ports.http="${nextcloud_port}"
+  fi
   # TODO: verify nextcloud port is set successfully.
 
   #The website should display:
@@ -95,23 +105,4 @@ set_nextcloud_port() {
 
   # Error code: SSL_ERROR_RX_RECORD_TOO_LONG
 
-}
-
-add_onion_to_nextcloud_trusted_domain() {
-
-  local onion_address
-  onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
-
-  # TODO: verify format of incoming onion address.
-
-  #add Hidden Service address like a trusted domain in NextCloud instance
-  sudo /snap/bin/nextcloud.occ config:system:set trusted_domains 1 --value="$onion_address"
-  printf "\nThe Hidden Service address has been added like trusted domain successfully.\n"
-
-  # TODO: verify output:
-  sudo /snap/bin/nextcloud.occ config:system:get trusted_domains
-}
-
-enable_calendar_app_in_nextcloud() {
-  sudo /snap/bin/nextcloud.occ app:install calendar
 }

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+enable_calendar_app_in_nextcloud() {
+  sudo /snap/bin/nextcloud.occ app:install calendar
+}
+
 create_khal_config() {
   local khal_config_filename="$1"
   local khal_config_path="$2"

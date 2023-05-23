@@ -4,99 +4,33 @@
 
 # Load used functions, from path relative to this main.sh.
 # shellcheck source=/dev/null
-source src/cli_logger.sh
-source src/config/configure_android_apps.sh
-source src/config/configure_khal.sh
-source src/config/configure_nextcloud.sh
-source src/config/configure_tor.sh
-source src/config/configure_vdirsyncer.sh
-source src/config/helper_tor_parsing.sh
-source src/config/setup_ssl.sh
-source src/connectivity_checks.sh
-source src/helper.sh
-source src/install/install_android_apps.sh
-source src/install/install_apk.sh
-source src/install/install_apt.sh
-source src/install/install_pip.sh
-source src/install/install_snap.sh
-source src/install/prereq_nextcloud.sh
-source src/run_tor/ensure_tor_runs.sh
-source src/uninstall/uninstall_apk.sh
-source src/verification/assert_tor_settings.sh
-
-# Tor configuration settings
-#Setup variables (change values if you need)
-TOR_SERVICE_DIR=/var/lib/tor
-NEXTCLOUD_HIDDEN_SERVICE_DIR=nextcloud
-NEXTCLOUD_HIDDEN_SERVICE_PATH="$TOR_SERVICE_DIR/$NEXTCLOUD_HIDDEN_SERVICE_DIR"
-HIDDEN_SERVICE_PORT=443
-LOCAL_NEXTCLOUD_PORT=81
-#HIDDEN_SERVICE_PORT=666
-#LOCAL_NEXTCLOUD_PORT=90
-TORRC_FILEPATH=/etc/tor/torrc
-TOR_LOG_FILEPATH="tor_log.txt"
-
-USERNAME=$(whoami)
-ROOT_CA_DIR="/home/$USERNAME"
-ROOT_CA_PEM_PATH="$ROOT_CA_DIR/$CA_PUBLIC_KEY_FILENAME"
-VDIRSYNCER_CONFIG_PATH="/home/$USERNAME/.config/vdirsyncer"
-VDIRSYNCER_CONFIG_FILENAME="config"
-VDIRSYNCER_STATUS_PATH="/home/$USERNAME/.config/vdirsyncer/status/"
-VDIRSYNCER_CONTACTS_PATH="/home/$USERNAME/Documents/Contacts/"
-VDIRSYNCER_CALENDAR_PATH="/home/$USERNAME/Documents/Calendar/"
-KHAL_CONFIG_PATH="/home/$USERNAME/.config/khal"
-KHAL_CONFIG_FILENAME="config"
 
 # Installs and partially sets up Nextcloud and Tor.
 setup_nextcloud() {
   local configure_nextcloud_flag="$1"
-  local default_nextcloud_username="$2"
-  local default_nextcloud_password="$3"
-  local install_tor_nextcloud_flag="$4"
-  local nextcloud_pwd_flag="$5"
-  local nextcloud_username_flag="$6"
+  local local_http_nextcloud_port="$2"
+  local local_https_nextcloud_port="$3"
+  local nextcloud_password="$4"
+  local nextcloud_username="$5"
 
-  # Set Nextcloud password without displaying it in terminal.
-  # Used if the user passes: -np or --nextcloud-password to CLI.
-  if [ "$nextcloud_pwd_flag" == "true" ] || [ "$calendar_client_flag" == "true" ]; then
-    echo -n Nextcloud Password:
-    read -r -s nextcloud_password
-    echo
-    assert_is_non_empty_string "${nextcloud_password}"
-  fi
-
-  # Install Tor and Nextcloud.
-  # Used if the user passes: -i or --install-tor-nextcloud to CLI.
-  if [ "$install_tor_nextcloud_flag" == "true" ]; then
-    install_tor_and_nextcloud
-  fi
-
-  # Configure Nextcloud
-  # Used if the user passes: -cn or --configure-nextcloud to CLI.
-  if [ "$configure_nextcloud_flag" == "true" ] || [ "$calendar_client_flag" == "true" ]; then
-
-    # Get the nextcloud username and password.
-    if [ "$nextcloud_username_flag" == "false" ]; then
-      # Specify variable defaults
-      nextcloud_username="$default_nextcloud_username"
-    fi
-    if [ "$nextcloud_pwd_flag" == "false" ] && [ "$calendar_client_flag" == "false" ]; then
-      # Specify variable defaults
-      nextcloud_password="$default_nextcloud_password"
-    fi
-  fi
   if [ "$configure_nextcloud_flag" == "true" ]; then
+    install_tor_and_nextcloud
     verify_snap_installed "nextcloud"
     setup_admin_account_on_snap_nextcloud "$nextcloud_username" "$nextcloud_password"
-    set_nextcloud_port "$LOCAL_NEXTCLOUD_PORT"
+
+    #sudo ufw allow 80,443/tcp
+    sudo ufw allow "$local_http_nextcloud_port","$local_https_nextcloud_port"/tcp
+    set_nextcloud_port "$local_http_nextcloud_port"
+    set_nextcloud_port "$local_https_nextcloud_port" "true"
   fi
 }
 
 setup_tor_for_nextcloud() {
   local configure_tor_for_nextcloud_flag="$1"
   local get_onion_flag="$2"
-  local new_onion_flag
-  new_onion_flag="$3"
+  local external_nextcloud_port="$3"
+  local local_https_nextcloud_port="$4"
+  local ssl_password="$5"
 
   # 6.a Proxify calendar app to go over tor to Nextcloud on client.
   # 6.b Verify calendar app goes over tor to Nextcloudon client.
@@ -109,16 +43,9 @@ setup_tor_for_nextcloud() {
   # Configure tor to create and host onion domain for nextcloud.
   # Used if the user passes: -ct or --configure_tor to CLI.
   if [ "$configure_tor_for_nextcloud_flag" == "true" ]; then
-    verify_apt_installed "tor"
+    # TODO: call SSL4Tor
 
-    # Setups up Nextcloud folder for tor private and public key to generate
-    # onion domain.
-    configure_tor "$HIDDEN_SERVICE_PORT" "$LOCAL_NEXTCLOUD_PORT" "$NEXTCLOUD_HIDDEN_SERVICE_PATH" "$TORRC_FILEPATH"
-
-    # Ensures an onion url is created for Nextcloud.
-    start_tor_and_check_onion_url "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname" "$TOR_LOG_FILEPATH" "$new_onion_flag"
-    assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
-    add_onion_to_nextcloud_trusted_domain
+    call_ssl4tor "$external_nextcloud_port" "$local_https_nextcloud_port" "$ssl_password"
   fi
 
   # Used if the user passes: -o or --get-onion to CLI.
@@ -203,18 +130,18 @@ configure_android_apps() {
     echo -n Nextcloud Password:
     #read -r -s nextcloud_password
     echo
-    assert_is_non_empty_string "${nextcloud_password}"
+    assert_is_non_empty_string "${nextcloud_password}" "nextcloud_password"
 
     # Configure the selected apps.
     IFS=, read -r -a arr <<<"${csv_app_list}"
-    
+
     for app_name in "${arr[@]}"; do
       if [ "$app_name" == "Orbot" ]; then
         echo "(Re)-Configuring: $app_name"
         configure_orbot_apk
       elif [ "$app_name" == "DAVx5" ]; then
-        
-        # Aqcuire sudo permission to configure DAVx5 throug adb and appcommander.
+
+        # Acquire sudo permission to configure DAVx5 through adb and appcommander.
         sudo echo
 
         # Verify orbot has been configured after this app is installed.
@@ -225,7 +152,7 @@ configure_android_apps() {
         assert_element_one_before_two_in_csv "Orbot" "DAVx5" "$csv_app_list"
 
         echo "(Re)-Configuring: $app_name"
-        configure_davx5_apk "$nextcloud_username" "$nextcloud_password" "$LOCAL_NEXTCLOUD_PORT"
+        configure_davx5_apk "$nextcloud_username" "$nextcloud_password"
       fi
     done
   fi

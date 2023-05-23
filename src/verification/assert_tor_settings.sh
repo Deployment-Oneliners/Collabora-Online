@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-source src/verification/check_tor_settings.sh
 #######################################
 # Asserts that a file exists and that its content is an onion URL in the correct format.
 #
