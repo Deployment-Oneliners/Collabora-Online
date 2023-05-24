@@ -157,5 +157,7 @@ if [ "$do_export_data" = true ]; then
   export_data "$backup"
 fi
 
+# Remove sudo permission requirement from backup files.
+sudo chmod 777 $backup/*
 echo ""
 echo "Successfully exported $backup"

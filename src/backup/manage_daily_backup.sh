@@ -25,7 +25,7 @@ create_a_nextcloud_backup() {
 
   # Assert the backup exists.
   if [ ${#filenames_to_be_deleted[@]} -lt 1 ]; then
-    echo "No backup file was found."
+    echo "No backup file was found at:$BACKUP_PATH for date:$todays_date."
     exit
   fi
 }
