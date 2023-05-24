@@ -181,7 +181,7 @@ fi
 
 # Remove sudo permission requirement from backup files.
 sudo chmod 777 $backup/*
-backup_dir_to_tar_gz "$backup_path" "$BACKUP_EXTENSION_WO_DOT"
+backup_dir_to_tar_gz "$backup" "$BACKUP_EXTENSION_WO_DOT"
 
 echo ""
 echo "Successfully exported $backup"

@@ -169,8 +169,6 @@ echo "development, use at your own risk. Note that the CLI interface is" >&2
 echo "unstable, so beware if using from within scripts." >&2
 echo "" >&2
 
-tar_gz_to_backup_dir "$backup_path" "$BACKUP_EXTENSION_WO_DOT"
-
 # Enable maintenance mode so data can't change out from under us
 if nextcloud_is_installed && ! enable_maintenance_mode; then
   echo "Unable to enter maintenance mode"
@@ -179,6 +177,8 @@ fi
 trap 'disable_maintenance_mode' EXIT
 
 backup_dir="$1"
+tar_gz_to_backup_dir "$backup_dir" "$BACKUP_EXTENSION_WO_DOT"
+
 if [ -z "$backup_dir" ]; then
   echo "Missing parameter <backup dir>"
   print_usage
