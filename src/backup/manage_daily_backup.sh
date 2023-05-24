@@ -38,8 +38,8 @@ apply_exponential_backup_filter() {
   get_backup_dates "$BACKUP_PATH" "$BACKUP_EXTENSION_WO_DOT" backup_dates
   declare -p backup_dates
   # Run the exponential backup filter.
-  local inverse="false" # Do not delete the files to keep in exponential curve.
-  delete_unwanted_backups "$todays_date" "$inverse" "$BACKUP_PATH" "$BACKUP_EXTENSION_WO_DOT" "${backup_dates[@]}"
+  #local inverse="false" # Do not delete the files to keep in exponential curve.
+  #delete_unwanted_backups "$todays_date" "$inverse" "$BACKUP_PATH" "$BACKUP_EXTENSION_WO_DOT" "${backup_dates[@]}"
 }
 
 # Run the functions.
