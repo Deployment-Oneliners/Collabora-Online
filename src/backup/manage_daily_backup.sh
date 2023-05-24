@@ -3,6 +3,7 @@
 # chmod +x src/backup/manage_daily_backup.sh
 # src/backup/./manage_daily_backup.sh
 source src/GLOBAL_VARS.sh
+source src/backup/exponential_backups.sh
 
 create_backup_directory() {
   mkdir -p "$BACKUP_PATH"
