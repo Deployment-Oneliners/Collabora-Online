@@ -37,17 +37,20 @@ src/main.sh -ac Orbot,DAVx5 -nu root -np
 
 ## Backup
 
-To create a backup, run:
+To create a backup file in:
+`/home/$USERNAME/Nextcloud/backups/<YYYYMMDD>-HHMMSS.tar.gz`, run:
 
 ```sh
-sudo ./export_data -a -b -c -d
+src/backup/./manage_daily_backup.sh
 ```
 
 That creates a backup file, which can be imported with (e.g.):
 
 ```sh
-sudo ./import_data -a -b -c -d /home/name/git/backup0/20230524-015550
+sudo src/backup/./import_data -a -b -c -d /home/root/Nextcloud/backups/20230525-000539
 ```
+
+Note the file extension is dropped for the import.
 
 ## Testing
 

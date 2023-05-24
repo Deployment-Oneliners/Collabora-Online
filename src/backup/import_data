@@ -108,17 +108,17 @@ tar_gz_to_backup_dir() {
   if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
     tar -xzvf "$backup_path.tar.gz" -C "$(dirname "$backup_path")" >/dev/null 2>&1
     if [ -d "$backup_path" ]; then
-      rm "$$backup_path.$backup_extention_wo_dot"
+      rm "$backup_path.$backup_extention_wo_dot"
     else
       echo "Error, $backup_path was not found."
       exit
     fi
   else
-    echo "Error, backup tar.gz does not exist."
+    echo "Error, $backup_path.$backup_extention_wo_dot does not exist."
     exit
   fi
   if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
-    echo "Error, backup tar.gz still exists."
+    echo "Error, $backup_path.$backup_extention_wo_dot still exists."
     exit
   fi
 }
