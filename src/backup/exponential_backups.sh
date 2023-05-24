@@ -6,9 +6,10 @@
 # backup is kept if its distance from the UNIX epoch in days divides (with zero
 # remainder) by BASE^power (where power is some integer 0 < MAX_POWER), and it
 # is less than WINDOW_FACTOR*BASE^power days old.
-BASE=2
-MAX_POWER=16
-WINDOW_FACTOR=4
+# Notice: these global variables are moved into GLOBAL_VARS.sh
+# BASE=2
+# MAX_POWER=16
+# WINDOW_FACTOR=4
 # It can be noted that the base**power creates a fixed range of numbers, e.g.
 # 2,4,8,16,32. "Somehow", by dividing the list of day numbers of the backups,
 # with this fixed list and only keeping the days that have a zero remainder,

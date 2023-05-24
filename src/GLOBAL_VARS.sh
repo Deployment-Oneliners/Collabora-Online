@@ -25,3 +25,11 @@ KHAL_CONFIG_PATH="/home/$USERNAME/.config/khal"
 KHAL_CONFIG_FILENAME="config"
 
 SSL4TOR_DIR="ssl4tor"
+
+# Backup configuration
+BASE=2
+MAX_POWER=16
+WINDOW_FACTOR=8 # Keep a backup of max 8*2*16= 256 days old.
+
+BACKUP_PATH="/home/$USERNAME/Nextcloud/backups"
+BACKUP_EXTENSION_WO_DOT="tar.gz"

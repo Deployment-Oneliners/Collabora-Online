@@ -1,5 +1,5 @@
 #!/bin/bash
-# sudo ./import_data /home/name/git/backup0/20230523-212316
+# ./import_data /home/name/git/backup0/20230523-212316
 
 # First define globals that are also used at source imports.
 SNAP_DATA=/var/snap/nextcloud/current/
@@ -12,10 +12,10 @@ source "nextcloud_utilities"
 source "mysql_utilities"
 source common_utilities
 
-if [ "$(id -u)" -ne 0 ]; then
-  echo "This utility needs to run as root"
-  exit 1
-fi
+# if [ "$(id -u)" -ne 0 ]; then
+# echo "This utility needs to run as root"
+# exit 1
+# fi
 
 # Used.
 print_usage() {
@@ -169,8 +169,8 @@ if [ "$do_import_database" = true ]; then
 fi
 
 if [ "$do_import_config" = true ]; then
-  import_config "$backup_dir"
-  read -p "Re-enabled importing config."
+  #import_config "$backup_dir"
+  echo "TODO: re-enable importing config."
 fi
 
 if [ "$do_import_data" = true ]; then
