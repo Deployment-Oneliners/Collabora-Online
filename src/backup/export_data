@@ -1,6 +1,7 @@
 #!/bin/bash
 # sudo ./export_data
 # sudo ./export_data -a -b -c -d
+source src/GLOBAL_VARS.sh
 
 # First define globals that are also used at source imports.
 SNAP_DATA=/var/snap/nextcloud/current/
@@ -125,7 +126,7 @@ echo "development, use at your own risk. Note that the CLI interface is" >&2
 echo "unstable, so beware if using from within scripts." >&2
 echo "" >&2
 
-backup="${BACKUP_PATH}/$(date +%Y%m%d-%H%M%S)"
+backup="$BACKUP_PATH/$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$backup"
 chmod 750 "$backup"
@@ -141,7 +142,6 @@ fi
 trap 'disable_maintenance_mode' EXIT
 
 if [ "$do_export_apps" = true ]; then
-  read -p "Exporting apps"
   export_apps "$backup"
 fi
 
