@@ -5,6 +5,7 @@
 source src/GLOBAL_VARS.sh
 
 # Clone the GitHub repository
+# TODO: pull if already cloned.
 git clone https://github.com/HiveMinds/Collabora-Online.git "$GIT_DIR_FOR_CRON"
 
 # Assert manage_daily_backup.sh script exists.
