@@ -61,6 +61,7 @@ function keep_backup() {
 function get_backup_dates() {
   local backup_path="$1"
   local extension_without_dot="$2"
+  local -n arr="$3" # use nameref for indirection
 
   if [[ ! -d "$backup_path" ]]; then
     echo "Error, backup directory:$backup_path not found."
@@ -81,14 +82,14 @@ function get_backup_dates() {
 
       # If the date is numeric, echo it.
       if [[ "$(is_numeric "$date_nrs")" == "true" ]]; then
-        echo "$date_nrs"
+        # echo "$date_nrs"
+        arr+=("$date_nrs")
       fi
     fi
   done
-
 }
 
-is_numeric() {
+function is_numeric() {
   local input="$1"
   if [[ "$input" =~ ^[0-9]+$ ]]; then
     echo "true"
@@ -131,6 +132,18 @@ function get_backup_dates_to_keep_or_delete() {
       echo "$some_backup_date"
     fi
   done
+}
+
+function find_and_delete_unwanted_backups() {
+  local backup_path="$1"
+  local extension_without_dot="$2"
+
+  # https://stackoverflow.com/questions/10582763/how-to-return-an-array-in-bash-without-using-globals
+  local backup_dates
+  get_backup_dates "$backup_path" "$extension_without_dot" backup_dates
+  declare -p backup_dates
+  echo "${backup_dates[3]}"
+  #"20230510"
 }
 
 function usage() {
@@ -181,7 +194,3 @@ while getopts "hrd:i:" OPTION; do
       ;;
   esac
 done
-
-get_backup_dates_to_keep_or_delete "$current_date" "$inverse" "${list_of_dates[@]}"
-
-#get_backup_dates

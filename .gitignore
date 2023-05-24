@@ -16,3 +16,5 @@ cert.pem
 fullchain.pem
 *.apk
 =*
+
+test/dummy_backups/*

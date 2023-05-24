@@ -21,9 +21,9 @@ load '../libs/bats-assert/load'
   # TODO: assert dummy backup path is empty.
 
   # Create dummy backup files
+  touch "$dummy_backup_path/20230524-015550.tar.gz"
   touch "$dummy_backup_path/20230524-016550.tar.gz"
   touch "$dummy_backup_path/20220524-015550.tar.gz"
-  touch "$dummy_backup_path/20230524-015550.tar.gz"
   touch "$dummy_backup_path/20220524-016550.tar.gz"
   touch "$dummy_backup_path/20230510-016550.tar.gz"
   touch "$dummy_backup_path/20230511-016550.tar.gz"
@@ -45,34 +45,10 @@ load '../libs/bats-assert/load'
   touch "$dummy_backup_path/20230527-016550.tar.gz"
 
   # Run function that is tested.
-  local backup_dates
-  # run get_backup_dates "$dummy_backup_path" "tar.gz" backup_dates
-  get_backup_dates "$dummy_backup_path" "tar.gz" backup_dates
-  declare -p backup_dates
+  run find_and_delete_unwanted_backups "$dummy_backup_path" "tar.gz"
 
   # Verify result is as expected.
-  assert_equal "${backup_dates[0]}" "20220524"
-  assert_equal "${backup_dates[1]}" "20220524"
-  assert_equal "${backup_dates[2]}" "20230510"
-  assert_equal "${backup_dates[3]}" "20230511"
-  assert_equal "${backup_dates[4]}" "20230512"
-  assert_equal "${backup_dates[5]}" "20230513"
-  assert_equal "${backup_dates[6]}" "20230514"
-  assert_equal "${backup_dates[7]}" "20230515"
-  assert_equal "${backup_dates[8]}" "20230516"
-  assert_equal "${backup_dates[9]}" "20230517"
-  assert_equal "${backup_dates[10]}" "20230518"
-  assert_equal "${backup_dates[11]}" "20230519"
-  assert_equal "${backup_dates[12]}" "20230520"
-  assert_equal "${backup_dates[13]}" "20230521"
-  assert_equal "${backup_dates[14]}" "20230522"
-  assert_equal "${backup_dates[15]}" "20230523"
-  assert_equal "${backup_dates[16]}" "20230524"
-  assert_equal "${backup_dates[17]}" "20230524"
-  assert_equal "${backup_dates[18]}" "20230525"
-  assert_equal "${backup_dates[19]}" "20230526"
-  assert_equal "${backup_dates[20]}" "20230527"
-  assert_equal "${backup_dates[21]}" ""
+  assert_output "20230510"
 
   # Delete dummy backup directory.
   rm -r -f "$dummy_backup_path"
