@@ -106,7 +106,7 @@ tar_gz_to_backup_dir() {
   local backup_extention_wo_dot="$2"
   # Extract .tar.gz file into original backup folder, and delete the tar.gz.
   if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
-    tar -xzvf "$backup_path.tar.gz" -C "$(dirname "$backup_path")"
+    tar -xzvf "$backup_path.tar.gz" -C "$(dirname "$backup_path")" >/dev/null 2>&1
     if [ -d "$backup_path" ]; then
       rm "$$backup_path.$backup_extention_wo_dot"
     else
