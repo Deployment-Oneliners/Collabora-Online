@@ -88,7 +88,8 @@ backup_dir_to_tar_gz() {
 
     # The last folder in the backup path is the filename of the new tar.gz.
     local last_folder_in_path=$(basename "${backup_path%/}")
-    tar -czvf "$last_folder_in_path.$backup_extention_wo_dot" -C "$backup_path" . >/dev/null 2>&1
+    local path_without_last_folder=$(dirname "${backup_path}")
+    tar -czvf "$backup_path.tar.gz" -C "$path_without_last_folder" "$last_folder_in_path"
     if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
       rm -r "$backup_path"
     else
