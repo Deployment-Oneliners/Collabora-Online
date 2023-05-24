@@ -80,6 +80,28 @@ export_data() {
   fi
 }
 
+backup_dir_to_tar_gz() {
+  local backup_path="$1"
+  local backup_extention_wo_dot="$1"
+  # Zip the backup folder into a .tar.gz file, and delete the original folder.
+  if [ -d "$backup_path" ]; then
+    tar -czvf "$backup_path.$backup_extention_wo_dot" "$backup_path"
+    if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
+      rm -r "$backup_path"
+    else
+      echo "Error, .$backup_extention_wo_dot of backup folder not found."
+      exit
+    fi
+  else
+    echo "Error, backup directory does not exist."
+    exit
+  fi
+  if [ -d "$backup_path" ]; then
+    echo "Error, backup directory still exists."
+    exit
+  fi
+}
+
 do_export_apps=false
 do_export_database=false
 do_export_config=false
@@ -159,5 +181,7 @@ fi
 
 # Remove sudo permission requirement from backup files.
 sudo chmod 777 $backup/*
+backup_dir_to_tar_gz "$backup_path" "$BACKUP_EXTENSION_WO_DOT"
+
 echo ""
 echo "Successfully exported $backup"

@@ -7,6 +7,7 @@ MYSQL_ROOT_OPTION_FILE="$SNAP_DATA/mysql/root.ini"
 CUSTOM_NEXTCLOUD_DATADIR="/var/snap/nextcloud/common/nextcloud/data"
 COMMAND="nextcloud.import"
 
+source src/GLOBAL_VARS.sh
 source "src/backup/nextcloud_utilities"
 # shellcheck source=src/mysql/utilities/mysql-utilities
 source "src/backup/mysql_utilities"
@@ -100,6 +101,28 @@ import_data() {
   fi
 }
 
+tar_gz_to_backup_dir() {
+  local backup_path="$1"
+  local backup_extention_wo_dot="$1"
+  # Extract .tar.gz file into original backup folder, and delete the tar.gz.
+  if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
+    tar -xzvf "$backup_path.tar.gz" -C "$(dirname "$backup_path")"
+    if [ -d "$backup_path" ]; then
+      rm "$$backup_path.$backup_extention_wo_dot"
+    else
+      echo "Error, $backup_path was not found."
+      exit
+    fi
+  else
+    echo "Error, backup tar.gz does not exist."
+    exit
+  fi
+  if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
+    echo "Error, backup tar.gz still exists."
+    exit
+  fi
+}
+
 do_import_apps=false
 do_import_database=false
 do_import_config=false
@@ -145,6 +168,8 @@ echo "WARNING: This functionality is still experimental and under" >&2
 echo "development, use at your own risk. Note that the CLI interface is" >&2
 echo "unstable, so beware if using from within scripts." >&2
 echo "" >&2
+
+tar_gz_to_backup_dir "$backup_path" "$BACKUP_EXTENSION_WO_DOT"
 
 # Enable maintenance mode so data can't change out from under us
 if nextcloud_is_installed && ! enable_maintenance_mode; then
