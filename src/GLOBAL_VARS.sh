@@ -33,3 +33,4 @@ WINDOW_FACTOR=8 # Keep a backup of max 8*2*16= 256 days old.
 
 BACKUP_PATH="/home/$USERNAME/Nextcloud/backups"
 BACKUP_EXTENSION_WO_DOT="tar.gz"
+GIT_DIR_FOR_CRON="/home/$USERNAME/collabora-online"
