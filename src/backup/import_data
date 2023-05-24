@@ -70,6 +70,8 @@ import_config() {
   database_password="$(mysql_get_nextcloud_password)"
   echo "database_password=$database_password"
   # Import the config, but set our new database password
+  echo "Current config:"
+  read -p "$(cat ${SNAP_DATA}/nextcloud/config/config.php)"
   echo "Importing config:"
   read -p "$(cat $config_backup)"
 

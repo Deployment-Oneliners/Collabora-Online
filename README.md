@@ -46,7 +46,7 @@ sudo ./export_data -a -b -c -d
 That creates a backup file, which can be imported with (e.g.):
 
 ```sh
-sudo ./import_data -a -b -c -d /home/name/git/backup0/20230523-212316
+sudo ./import_data -a -b -c -d /home/name/git/backup0/20230524-015550
 ```
 
 ## Testing
