@@ -85,7 +85,10 @@ backup_dir_to_tar_gz() {
   local backup_extention_wo_dot="$2"
   # Zip the backup folder into a .tar.gz file, and delete the original folder.
   if [ -d "$backup_path" ]; then
-    tar -czvf "$backup_path.$backup_extention_wo_dot" -C "$backup_path" . >/dev/null 2>&1
+
+    # The last folder in the backup path is the filename of the new tar.gz.
+    local last_folder_in_path=$(basename "${backup_path%/}")
+    tar -czvf "$last_folder_in_path.$backup_extention_wo_dot" -C "$backup_path" . >/dev/null 2>&1
     if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
       rm -r "$backup_path"
     else
