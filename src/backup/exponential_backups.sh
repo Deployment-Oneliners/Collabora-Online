@@ -18,9 +18,9 @@ WINDOW_FACTOR=4
 # not shift, instead, some of the entries in the list drop out, to preserve the
 # exponential steps/backup. # This is experimentally validated.
 
-inverse="false"
-current_date=$(date -I)
-input="/dev/stdin"
+#inverse="false"
+#current_date=$(date -I)
+#input="/dev/stdin"
 
 # Returns output if the date passed in as the first argument is not in a format
 # 'date' can understand
@@ -99,18 +99,21 @@ function is_numeric() {
 }
 
 # Echos the backups to keep or delete.
-function get_backup_dates_to_keep_or_delete() {
+function delete_unwanted_backups() {
   local current_date="$1"
   local inverse="$2"
+  local backup_path="$3"
+  local extension_without_dot="$4"
+  shift
+  shift
   shift
   shift
   local list_of_dates=("$@")
 
   # Convert the current day into a day count/nr.
+  local current_days
   current_days=$(days_since_epoch "$current_date")
-
-  # IFS=, read -r -a arr <<<"${list_of_dates}"
-  # echo "arr=${arr[@]}"
+  local some_backup_date
   for some_backup_date in "${list_of_dates[@]}"; do
 
     # Verify the found backup date has a valid format.
@@ -119,6 +122,7 @@ function get_backup_dates_to_keep_or_delete() {
       exit 1
     fi
     # Convert the backup date to a day count/nr.
+    local backup_days
     backup_days=$(days_since_epoch "$some_backup_date")
 
     # Determine whether this number is in the exponential range of days to keep.
@@ -126,24 +130,81 @@ function get_backup_dates_to_keep_or_delete() {
     keep="$(keep_backup "$current_days" "$backup_days")"
 
     # Echo the backup days to keep (or delete if inverse is true)
-    if [[ "$inverse" == "false" ]] && [[ "$keep" == "true" ]]; then
-      echo "$some_backup_date"
+    if [[ "$inverse" == "false" ]] && [[ "$keep" == "false" ]]; then
+      delete_backups_from_date "$backup_path" "$some_backup_date" "$extension_without_dot"
     elif [[ "$inverse" == "true" ]] && [[ "$keep" == "false" ]]; then
-      echo "$some_backup_date"
+      echo "Error, cannot delete inverse backup files (for safety reasons)."
+      exit
     fi
   done
 }
 
-function find_and_delete_unwanted_backups() {
+function delete_backups_from_date() {
   local backup_path="$1"
-  local extension_without_dot="$2"
+  local some_backup_date="$2"
+  local extension_without_dot="$3"
 
-  # https://stackoverflow.com/questions/10582763/how-to-return-an-array-in-bash-without-using-globals
-  local backup_dates
-  get_backup_dates "$backup_path" "$extension_without_dot" backup_dates
-  declare -p backup_dates
-  echo "${backup_dates[3]}"
-  #"20230510"
+  #echo "Deleting:$backup_path/$backup_date.$extension_without_dot"
+
+  # Assert the backup date path exists.
+  if [[ ! -d "$backup_path/" ]]; then
+    echo "Error, backup path:$backup_path not found."
+    exit
+  fi
+
+  # Create the array with filenames that are to be deleted.
+  local filenames_to_be_deleted
+  get_backup_filenames_of_date filenames_to_be_deleted "$backup_path" "$extension_without_dot" "$some_backup_date"
+  declare -p filenames_to_be_deleted
+
+  for filename_to_be_deleted in "${filenames_to_be_deleted[@]}"; do
+    # Assert a backup date file exists.
+    if [[ ! -f "$backup_path/$filename_to_be_deleted" ]]; then
+      echo "Error, backup file:$backup_path/$filename_to_be_deleted was not found."
+    else
+      # Delete all backup files of that date.
+      rm "$backup_path/$filename_to_be_deleted"
+    fi
+
+    # Assert no backup files of a certain date exist anymore.
+    if [[ -f "$backup_path/$filename_to_be_deleted" ]]; then
+      echo "Error, backup file:$backup_path/$filename_to_be_deleted was found after deletion."
+    fi
+  done
+}
+
+function get_backup_filenames_of_date() {
+  # shellcheck disable=SC2178
+  local -n arr="$1" # use nameref for indirection
+  local backup_path="$2"
+  local extension_without_dot="$3"
+  local some_backup_date="$4"
+
+  if [[ ! -d "$backup_path" ]]; then
+    echo "Error, backup directory:$backup_path not found."
+    exit
+  fi
+
+  for filepath in "$backup_path"/*."$extension_without_dot"; do
+    if [ -f "$filepath" ]; then
+
+      local filename
+      filename=$(basename "$filepath")
+      local filename_without_extension
+      filename_without_extension="${filename%%."$extension_without_dot"}"
+
+      # Split format:20230524-015550 into: 20230524 to get the date.
+      IFS="-" read -ra parts <<<"$filename_without_extension"
+      local date_nrs="${parts[0]}"
+
+      # If the date is numeric, echo it.
+      if [[ "$(is_numeric "$date_nrs")" == "true" ]]; then
+        if [[ "$some_backup_date" == "$date_nrs" ]]; then
+          arr+=("$filename")
+        fi
+      fi
+    fi
+  done
 }
 
 function usage() {

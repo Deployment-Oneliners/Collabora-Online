@@ -6,6 +6,9 @@ load '../libs/bats-assert/load'
 @test "Creates dummy backup files and verifies the get_backup_dates function in /src/backup/exponential_backups.sh finds them." {
   # Load the function that is to be tested.
   source src/backup/exponential_backups.sh
+  BASE=2
+  MAX_POWER=16
+  WINDOW_FACTOR=4
 
   # Create an empty dummy backup file directory.
   local dummy_backup_path="test/dummy_backups"
