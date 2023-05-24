@@ -1,4 +1,7 @@
 #!/bin/bash
+# Run with:
+# chmod +x src/backup/manage_daily_backup.sh
+# src/backup/./manage_daily_backup.sh
 source src/GLOBAL_VARS.sh
 
 create_backup_directory() {
