@@ -82,7 +82,7 @@ export_data() {
 
 backup_dir_to_tar_gz() {
   local backup_path="$1"
-  local backup_extention_wo_dot="$1"
+  local backup_extention_wo_dot="$2"
   # Zip the backup folder into a .tar.gz file, and delete the original folder.
   if [ -d "$backup_path" ]; then
     tar -czvf "$backup_path.$backup_extention_wo_dot" "$backup_path"
