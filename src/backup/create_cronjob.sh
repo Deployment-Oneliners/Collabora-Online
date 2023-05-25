@@ -8,7 +8,7 @@ source src/GLOBAL_VARS.sh
 if [ ! -d "$GIT_DIR_FOR_CRON" ]; then
   git clone https://github.com/HiveMinds/Collabora-Online.git "$GIT_DIR_FOR_CRON"
 else
-  sudo rm -r "$GIT_DIR_FOR_CRON"
+  rm -r "$GIT_DIR_FOR_CRON"
   if [ -d "$GIT_DIR_FOR_CRON" ]; then
     echo "Error, $GIT_DIR_FOR_CRON dir still exists."
     exit
