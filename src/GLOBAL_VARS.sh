@@ -14,14 +14,13 @@ TORRC_FILEPATH="/etc/tor/torrc"
 TOR_LOG_FILEPATH="tor_log.txt"
 
 # Read username from file or get it from the user that called su.
-USERNAME="$(cat "username.txt")"
-if [ "$USERNAME" == "" ]; then
-  if [ "$SUDO_USER" ]; then
+if [ ! -f "username.txt" ]; then
+    USERNAME="$(cat "username.txt")"
+elif [ "$SUDO_USER" ]; then
     USERNAME="$SUDO_USER"
-  else
+else
     echo "Error, the user that called this sudo shell is not known."
     exit
-  fi
 fi
 
 ROOT_CA_DIR="/home/$USERNAME"
