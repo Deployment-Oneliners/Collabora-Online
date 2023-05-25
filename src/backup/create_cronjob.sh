@@ -2,7 +2,20 @@
 # Run with:
 # chmod +x src/backup/create_cronjob.sh
 # src/backup/./create_cronjob.sh
-source src/GLOBAL_VARS.sh
+
+# TODO: remove need for sudo for backup script, then call from regular user
+# such that the regular user does not need to be passed from the one who called
+# the sudo, like this.
+if [ "$SUDO_USER" ]; then
+  echo "$SUDO_USER" >"username.txt"
+  source src/GLOBAL_VARS.sh
+else
+  echo "Error, the user that called this sudo shell is not known."
+  exit
+fi
+
+read -p "GIT_DIR_FOR_CRON=$GIT_DIR_FOR_CRON."
+read -p "Inspect username."
 
 # Clone the GitHub repository
 if [ ! -d "$GIT_DIR_FOR_CRON" ]; then
@@ -19,16 +32,10 @@ else
     exit
   fi
 fi
+echo "$SUDO_USER" >"$GIT_DIR_FOR_CRON/username.txt"
 
-# TODO: remove need for sudo for backup script, then call from regular user
-# such that the regular user does not need to be passed from the one who called
-# the sudo, like this.
-if [ "$SUDO_USER" ]; then
-  echo "$SUDO_USER" >"$GIT_DIR_FOR_CRON/username.txt"
-  source src/GLOBAL_VARS.sh
-fi
-read -p "GIT_DIR_FOR_CRON=$GIT_DIR_FOR_CRON."
-read -p "Inspect username."
+
+
 
 # Assert manage_daily_backup.sh script exists.
 backup_manager_path="$GIT_DIR_FOR_CRON/src/backup/manage_daily_backup.sh"
