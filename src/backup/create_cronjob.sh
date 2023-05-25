@@ -28,7 +28,7 @@ if [ ! -f "$backup_manager_path" ]; then
 fi
 chmod +x "$backup_manager_path"
 
-backup_manager_command="cd $GIT_DIR_FOR_CRON && /src/backup/./manage_daily_backup.sh"
+backup_manager_command="cd $GIT_DIR_FOR_CRON && src/backup/./manage_daily_backup.sh"
 # Check if the cron job already exists
 if sudo crontab -l | grep -q "$backup_manager_command"; then
   echo "Cron job already exists. Skipping setup."
