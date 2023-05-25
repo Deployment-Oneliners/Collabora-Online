@@ -20,6 +20,16 @@ else
   fi
 fi
 
+# TODO: remove need for sudo for backup script, then call from regular user
+# such that the regular user does not need to be passed from the one who called
+# the sudo, like this.
+if [ "$SUDO_USER" ]; then
+  echo "$SUDO_USER" >"$GIT_DIR_FOR_CRON/username.txt"
+  source src/GLOBAL_VARS.sh
+fi
+read -p "GIT_DIR_FOR_CRON=$GIT_DIR_FOR_CRON."
+read -p "Inspect username."
+
 # Assert manage_daily_backup.sh script exists.
 backup_manager_path="$GIT_DIR_FOR_CRON/src/backup/manage_daily_backup.sh"
 if [ ! -f "$backup_manager_path" ]; then

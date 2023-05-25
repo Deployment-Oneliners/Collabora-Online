@@ -13,13 +13,17 @@ NEXTCLOUD_HIDDEN_SERVICE_PATH="$TOR_SERVICE_DIR/$NEXTCLOUD_HIDDEN_SERVICE_DIR"
 TORRC_FILEPATH="/etc/tor/torrc"
 TOR_LOG_FILEPATH="tor_log.txt"
 
-if [ "$SUDO_USER" ]; then
-  #USERNAME=$(whoami)
-  USERNAME="$SUDO_USER"
-else
-  echo "Error, the user that called this sudo shell is not known."
-  exit
+# Read username from file or get it from the user that called su.
+USERNAME="$(cat "username.txt")"
+if [ "$USERNAME" == "" ]; then
+  if [ "$SUDO_USER" ]; then
+    USERNAME="$SUDO_USER"
+  else
+    echo "Error, the user that called this sudo shell is not known."
+    exit
+  fi
 fi
+
 ROOT_CA_DIR="/home/$USERNAME"
 ROOT_CA_PEM_PATH="$ROOT_CA_DIR/$CA_PUBLIC_KEY_FILENAME"
 VDIRSYNCER_CONFIG_PATH="/home/$USERNAME/.config/vdirsyncer"
