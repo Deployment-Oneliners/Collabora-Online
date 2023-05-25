@@ -17,7 +17,9 @@ TOR_LOG_FILEPATH="tor_log.txt"
 if [ -f "username.txt" ]; then
   USERNAME="$(cat "username.txt")"
 else
-  echo "Error, the username to run this code on, is not known."
+  echo "Error, the username to run this code on, is not known. Please run:"
+  # shellcheck disable=SC2016
+  echo 'echo "$(whoami)" > username.txt'
   exit
 fi
 

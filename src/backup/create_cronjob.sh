@@ -14,9 +14,6 @@ else
   exit
 fi
 
-read -p "GIT_DIR_FOR_CRON=$GIT_DIR_FOR_CRON."
-read -p "Inspect username."
-
 # Clone the GitHub repository
 if [ ! -d "$GIT_DIR_FOR_CRON" ]; then
   git clone https://github.com/HiveMinds/Collabora-Online.git "$GIT_DIR_FOR_CRON"

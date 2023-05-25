@@ -47,7 +47,7 @@ src/backup/./manage_daily_backup.sh
 That creates a backup file, which can be imported with (e.g.):
 
 ```sh
-sudo src/backup/./import_data -a -b -c -d /home/root/Nextcloud/backups/20230525-011206
+sudo src/backup/./import_data -a -b -c -d /home/oem/Nextcloud/backups/20230525-032501
 ```
 
 Note the file extension is dropped for the import.
