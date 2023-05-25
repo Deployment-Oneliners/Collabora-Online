@@ -1,10 +1,16 @@
-# Unit tested Shell/Bash code template
+# Self-hosted Nextcloud over Tor
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-Automatically installs your own, private, self-hosted calendar, accessible from
-anywhere, on your laptop and phone, with a single command, for free, over tor.
-No need to buy a domain name, no port-forwarding, no dns settings.
+One command to set up your self-hosted:
+
+- Nextcloud over tor, with https.
+- Calendar sync with your android phone, over tor, with https.
+- Command-line calendar interface.
+- Exponential backups.
+
+No need to buy a domain name, no port-forwarding, no dns settings, no nothing.
+Tested (manually) on Ubuntu 22.10.
 
 ## Usage
 
@@ -35,16 +41,31 @@ src/main.sh -ar Orbot,DAVx5
 src/main.sh -ac Orbot,DAVx5 -nu root -np
 ```
 
-## Backup
+## Automatic Exponential Backups
 
-To create a backup file in:
+Ps. this works, but it still needs sudo, which is quite inelegant for the cronjob.
+
+The exponential part means in this context: the further back in time, the
+fewer backups you keep. To set up a cronjob that automatically backs up your
+entire Nextcloud, run:
+
+```sh
+chmod +x src/backup/*.sh
+sudo src/backup/./create_cronjob.sh
+```
+
+That's it. See below on how to restore any of those backups.
+
+## Manual Backups
+
+To manually create a backup file in:
 `/home/$USERNAME/Nextcloud/backups/<YYYYMMDD>-HHMMSS.tar.gz`, run:
 
 ```sh
 src/backup/./manage_daily_backup.sh
 ```
 
-That creates a backup file, which can be imported with (e.g.):
+You can restore that backup file with:
 
 ```sh
 sudo src/backup/./import_data -a -b -c -d /home/oem/Nextcloud/backups/20230525-032501
@@ -106,17 +127,17 @@ bashcov bats test
 
 ## Objectives
 
-- [ ] Include arg parser to allow user to select between:
-  - [ ] Server
-  - [ ] Client
-  - [ ] Phone
+- [x] Include arg parser to allow user to select between:
+  - [x] Server
+  - [x] Client
+  - [x] Phone
     installation.
-- [ ] Automatically set up Nextcloud calendar accessible over tor.
-- [ ] Add a local calendar viewing app like thunderbird to prevent having to wait
+- [x] Automatically set up Nextcloud calendar accessible over tor.
+- [x] Add a local calendar viewing app like thunderbird to prevent having to wait
   on the onion domain loading every   time you wanna access your calendar. add
   torsocks to that local viewing app, such that it syncs automatically. Ensure
   it does not sync locally, but over tor.
-- [ ] Automatically set up calendar sync over tor for android app.
+- [x] Automatically set up calendar sync over tor for android app.
 - [ ] Get API to add taskwarrior tasks.
 - [ ] Allow users to share an obfuscated calendar to enable people to make an
   appointment with the user at an allowed slot, without seeing user activity.
@@ -124,6 +145,9 @@ bashcov bats test
 
 ## How to help
 
+- Remove the need for sudo for the backups.
+- Fix importing the Nextcloud config backup.
+- Improve code quality.
 - Include bash code coverage in GitLab CI.
 - Add [additional](https://pre-commit.com/hooks.html) (relevant) pre-commit hooks.
 - Develop Bash documentation checks
