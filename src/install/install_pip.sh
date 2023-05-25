@@ -20,7 +20,7 @@ ensure_pip_pkg() {
     printf "==========================\\n"
     red_msg " ${pip_package_name} is not installed. Installing now.\\n"
     printf "==========================\\n\\n"
-    pip -y install "${pip_package_name}"
+    pip install "${pip_package_name}"
   else
     printf "======================\\n"
     green_msg " ${pip_package_name} is installed\\n"

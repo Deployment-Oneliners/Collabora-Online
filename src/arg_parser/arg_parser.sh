@@ -22,15 +22,15 @@ parse_args() {
   # the shift command eats the first element of that array, making it shorter.
   while [[ $# -gt 0 ]]; do
     case $1 in
-      -ar | --android-reinstall)
-        android_app_reinstall_flag='true'
-        reinstall_app_list="$2"
-        shift
-        shift
-        ;;
       -ac | --android-configure)
         android_app_configure_flag='true'
         configure_app_list="$2"
+        shift
+        shift
+        ;;
+      -ar | --android-reinstall)
+        android_app_reinstall_flag='true'
+        reinstall_app_list="$2"
         shift
         shift
         ;;
@@ -134,7 +134,7 @@ parse_args() {
   configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
 
   reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"
-  configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list"
+  configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list" "$external_nextcloud_port"
 
   uninstaller "$uninstall_nextcloud_flag"
 }

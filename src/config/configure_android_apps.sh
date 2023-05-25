@@ -4,18 +4,25 @@ configure_orbot_apk() {
   local android_app_name="org.torproject.android"
 
   # Configure orbot.
-  if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
-    conda create -n "appcommander" python=3.10 -y
-  fi
+  # if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
+  #   conda create -n "appcommander" python=3.10 -y
+  # fi
 
-  eval "$(conda shell.bash hook)"
-  conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
+  # eval "$(conda shell.bash hook)"
+  # conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
+
+  ensure_pip_pkg "appcommander"
+  appcommander \
+    --app-name "$android_app_name" \
+    --version "16.6.3 RC 1" \
+    --torify DAVx5
   echo "Done with Orbot"
 }
 
 configure_davx5_apk() {
   local nextcloud_username="$1"
   local nextcloud_password="$2"
+  local external_nextcloud_port="$3"
 
   local android_app_name="at.bitfire.davdroid"
 
@@ -27,15 +34,22 @@ configure_davx5_apk() {
 
   # TODO: verify access to Nextcloud via this domain is trusted.
 
-  if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
-    conda create -n "appcommander" python=3.10 -y
-    # exit 5
-  fi
+  # if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
+  # conda create -n "appcommander" python=3.10 -y
+  # exit 5
+  # fi
 
   # Configure DAVx5 app.
-
-  eval "$(conda shell.bash hook)"
-  conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
+  ensure_pip_pkg "appcommander"
+  appcommander \
+    --app-name "$android_app_name" \
+    --version "4.2.6" \
+    --nextcloud-username "$nextcloud_username" \
+    --nextcloud-password "$nextcloud_password" \
+    --onion-url "$onion_address" \
+    --external-nextcloud-port "$external_nextcloud_port"
+  # eval "$(conda shell.bash hook)"
+  # conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
   echo "Done with DAVx5"
 }
 

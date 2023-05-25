@@ -36,9 +36,12 @@ src/main.sh \
   --ssl-password somepassword \
   --verbose
 
-src/main.sh -cs # Enable the Nextcloud Calendar application.
-src/main.sh -ar Orbot,DAVx5
-src/main.sh -ac Orbot,DAVx5 -nu root -np
+src/main.sh --calendar-server # Enable the Nextcloud Calendar application.
+src/main.sh --android-reinstall Orbot,DAVx5
+src/main.sh --android-configure Orbot,DAVx5 \
+  --nextcloud-username root \
+  --external-nextcloud-port 7995 \
+  --nextcloud-password
 ```
 
 ## Automatic Exponential Backups

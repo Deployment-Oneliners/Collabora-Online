@@ -115,12 +115,10 @@ reinstall_android_apps() {
 }
 
 configure_android_apps() {
-  local android_app_configure_flag
-  android_app_configure_flag="$1"
-  local nextcloud_username
-  nextcloud_username="$2"
-  local csv_app_list
-  csv_app_list="$3"
+  local android_app_configure_flag="$1"
+  local nextcloud_username="$2"
+  local csv_app_list="$3"
+  local external_nextcloud_port="$4"
 
   if [ "$android_app_configure_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
@@ -150,9 +148,10 @@ configure_android_apps() {
         # because DAVx5 is not torrified by orbot. As a bandaid, always run
         # -ar DAVx5,Orbot and -ac DAVx5,Orbot for both apps at once.
         assert_element_one_before_two_in_csv "Orbot" "DAVx5" "$csv_app_list"
+        assert_is_non_empty_string "${external_nextcloud_port}" "external_nextcloud_port"
 
         echo "(Re)-Configuring: $app_name"
-        configure_davx5_apk "$nextcloud_username" "$nextcloud_password"
+        configure_davx5_apk "$nextcloud_username" "$nextcloud_password" "$external_nextcloud_port"
       fi
     done
   fi
