@@ -19,21 +19,21 @@ if [ ! -f "$backup_manager_path" ]; then
 fi
 chmod +x "$backup_manager_path"
 
-backup_manager_command="$GIT_DIR_FOR_CRON/src/backup/./manage_daily_backup.sh"
+backup_manager_command="cd $GIT_DIR_FOR_CRON && /src/backup/./manage_daily_backup.sh"
 # Check if the cron job already exists
-if crontab -l | grep -q "$backup_manager_command"; then
+if sudo crontab -l | grep -q "$backup_manager_command"; then
   echo "Cron job already exists. Skipping setup."
 else
   # Add the cron job entry to run every day at 02:01 midnight.
   (
-    crontab -l 2>/dev/null
+    sudo crontab -l 2>/dev/null
     echo "1 2 * * * $backup_manager_command"
-  ) | crontab -
+  ) | sudo crontab -
   echo "Cron job successfully set up."
 fi
 
 # Assert the cronjob was added successfully.
-if crontab -l | grep -q "$backup_manager_command"; then
+if sudo crontab -l | grep -q "$backup_manager_command"; then
   echo ""
 else
   echo "Error, cronjob was not found."
