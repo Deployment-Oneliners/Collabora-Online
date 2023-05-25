@@ -34,9 +34,6 @@ else
 fi
 echo "$SUDO_USER" >"$GIT_DIR_FOR_CRON/username.txt"
 
-
-
-
 # Assert manage_daily_backup.sh script exists.
 backup_manager_path="$GIT_DIR_FOR_CRON/src/backup/manage_daily_backup.sh"
 if [ ! -f "$backup_manager_path" ]; then

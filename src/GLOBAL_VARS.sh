@@ -15,10 +15,10 @@ TOR_LOG_FILEPATH="tor_log.txt"
 
 # Read username from file or get it from the user that called su.
 if [ ! -f "username.txt" ]; then
-    USERNAME="$(cat "username.txt")"
+  USERNAME="$(cat "username.txt")"
 else
-    echo "Error, the username to run this code on, is not known."
-    exit
+  echo "Error, the username to run this code on, is not known."
+  exit
 fi
 
 ROOT_CA_DIR="/home/$USERNAME"
