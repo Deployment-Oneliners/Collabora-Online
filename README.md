@@ -35,6 +35,23 @@ src/main.sh -ar Orbot,DAVx5
 src/main.sh -ac Orbot,DAVx5 -nu root -np
 ```
 
+## Backup
+
+To create a backup file in:
+`/home/$USERNAME/Nextcloud/backups/<YYYYMMDD>-HHMMSS.tar.gz`, run:
+
+```sh
+src/backup/./manage_daily_backup.sh
+```
+
+That creates a backup file, which can be imported with (e.g.):
+
+```sh
+sudo src/backup/./import_data -a -b -c -d /home/root/Nextcloud/backups/20230525-011206
+```
+
+Note the file extension is dropped for the import.
+
 ## Testing
 
 Put your unit test files (with extension .bats) in folder: `/test/`

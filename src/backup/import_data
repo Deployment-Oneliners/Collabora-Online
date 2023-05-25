@@ -1,32 +1,22 @@
 #!/bin/bash
+# ./import_data /home/name/git/backup0/20230523-212316
 
-# sudo ./import-data /home/name/git/backup0/20230127-034839
-# sudo ./import-data /home/name/git/backup0/20230127-105653
-# sudo ./import-data /home/name/git/backup0/20230127-112224 # without appointment
-# sudo ./import-data /home/name/git/backup0/20230127-112545 # with appointment
-
-source "nextcloud_utilities"
-# shellcheck source=src/mysql/utilities/mysql-utilities
-# . "$SNAP/utilities/mysql-utilities"
-source "mysql_utilities"
-source common_utilities
-
-if [ "$(id -u)" -ne 0 ]; then
-  echo "This utility needs to run as root"
-  exit 1
-fi
-
-SNAP="src/common"
+# First define globals that are also used at source imports.
 SNAP_DATA=/var/snap/nextcloud/current/
 MYSQL_ROOT_OPTION_FILE="$SNAP_DATA/mysql/root.ini"
 CUSTOM_NEXTCLOUD_DATADIR="/var/snap/nextcloud/common/nextcloud/data"
-
-# shellcheck source=src/nextcloud/utilities/nextcloud-utilities
-
-# shellcheck disable=SC2119
-#wait_for_mysql
-
 COMMAND="nextcloud.import"
+
+source src/GLOBAL_VARS.sh
+source "src/backup/nextcloud_utilities"
+# shellcheck source=src/mysql/utilities/mysql-utilities
+source "src/backup/mysql_utilities"
+source "src/backup/common_utilities"
+
+# if [ "$(id -u)" -ne 0 ]; then
+# echo "This utility needs to run as root"
+# exit 1
+# fi
 
 # Used.
 print_usage() {
@@ -76,14 +66,24 @@ import_database() {
 
 # Used.
 import_config() {
-  backup_dir="$1"
+  local backup_dir="$1"
   config_backup="${backup_dir}/config.php"
   database_password="$(mysql_get_nextcloud_password)"
   echo "database_password=$database_password"
   # Import the config, but set our new database password
-  echo "Importing config..."
+  echo "Current config:"
+  read -p "$(cat ${SNAP_DATA}/nextcloud/config/config.php)"
+  echo "Importing config:"
+  read -p "$(cat $config_backup)"
+
+  # replace the placeholder string "DBPASSWORD" in the file specified by $
+  # config_backup with the value stored in the variable $database_password.
+  # The updated content is then saved to the file
+  # ${SNAP_DATA}/nextcloud/config/config.php. If any error occurs during this
+  # process, the code block following then will be executed.
   if ! sed "s/DBPASSWORD/$database_password/" \
     "$config_backup" >"${SNAP_DATA}/nextcloud/config/config.php"; then
+    # TODO: process the prior content of the $config_backup file.
     echo "Unable to import config"
     exit 1
   fi
@@ -98,6 +98,28 @@ import_data() {
   if ! rsync -ah --info=progress2 "$data_backup/" "$CUSTOM_NEXTCLOUD_DATADIR"; then
     echo "Unable to import data"
     exit 1
+  fi
+}
+
+tar_gz_to_backup_dir() {
+  local backup_path="$1"
+  local backup_extention_wo_dot="$2"
+  # Extract .tar.gz file into original backup folder, and delete the tar.gz.
+  if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
+    tar -xzvf "$backup_path.tar.gz" -C "$(dirname "$backup_path")" >/dev/null 2>&1
+    if [ -d "$backup_path" ]; then
+      rm "$backup_path.$backup_extention_wo_dot"
+    else
+      echo "Error, $backup_path was not found."
+      exit
+    fi
+  else
+    echo "Error, $backup_path.$backup_extention_wo_dot does not exist."
+    exit
+  fi
+  if [ -f "$backup_path.$backup_extention_wo_dot" ]; then
+    echo "Error, $backup_path.$backup_extention_wo_dot still exists."
+    exit
   fi
 }
 
@@ -155,6 +177,8 @@ fi
 trap 'disable_maintenance_mode' EXIT
 
 backup_dir="$1"
+tar_gz_to_backup_dir "$backup_dir" "$BACKUP_EXTENSION_WO_DOT"
+
 if [ -z "$backup_dir" ]; then
   echo "Missing parameter <backup dir>"
   print_usage
@@ -170,8 +194,8 @@ if [ "$do_import_database" = true ]; then
 fi
 
 if [ "$do_import_config" = true ]; then
-  # import_config "$backup_dir"
-  echo "Skip importing config."
+  #import_config "$backup_dir"
+  echo "TODO: re-enable importing config."
 fi
 
 if [ "$do_import_data" = true ]; then

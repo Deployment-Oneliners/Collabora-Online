@@ -13,7 +13,13 @@ NEXTCLOUD_HIDDEN_SERVICE_PATH="$TOR_SERVICE_DIR/$NEXTCLOUD_HIDDEN_SERVICE_DIR"
 TORRC_FILEPATH="/etc/tor/torrc"
 TOR_LOG_FILEPATH="tor_log.txt"
 
-USERNAME=$(whoami)
+if [ "$SUDO_USER" ]; then
+  #USERNAME=$(whoami)
+  USERNAME="$SUDO_USER"
+else
+  echo "Error, the user that called this sudo shell is not known."
+  exit
+fi
 ROOT_CA_DIR="/home/$USERNAME"
 ROOT_CA_PEM_PATH="$ROOT_CA_DIR/$CA_PUBLIC_KEY_FILENAME"
 VDIRSYNCER_CONFIG_PATH="/home/$USERNAME/.config/vdirsyncer"
@@ -25,3 +31,12 @@ KHAL_CONFIG_PATH="/home/$USERNAME/.config/khal"
 KHAL_CONFIG_FILENAME="config"
 
 SSL4TOR_DIR="ssl4tor"
+
+# Backup configuration
+BASE=2
+MAX_POWER=16
+WINDOW_FACTOR=8 # Keep a backup of max 8*2*16= 256 days old.
+
+BACKUP_PATH="/home/$USERNAME/Nextcloud/backups"
+BACKUP_EXTENSION_WO_DOT="tar.gz"
+GIT_DIR_FOR_CRON="/home/$USERNAME/collabora-online"
