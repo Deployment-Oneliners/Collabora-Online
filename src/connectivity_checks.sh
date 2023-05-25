@@ -39,7 +39,8 @@ assert_phone_has_internet_connection() {
 
   # Assert phone has internet access (to github.com).
   adb shell ping -c1 github.com &>/dev/null
-  if [ "$(adb shell ping -c1 github.com &>/dev/null)" -eq 0 ]; then
+  # if [ "$(adb shell ping -c1 github.com &>/dev/null)" -eq 0 ]; then
+  if adb shell ping -c 1 github.com >/dev/null 2>&1; then
     echo "Phone has internet access."
   else
     echo "Please ensure your phone has internet access, and try again."

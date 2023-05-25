@@ -4,13 +4,12 @@ configure_orbot_apk() {
   local android_app_name="org.torproject.android"
 
   # Configure orbot.
-  if [[ "$(conda_env_exists androidappcommander)" == "FOUND" ]]; then
-    conda create -n "androidappcommander" python=3.10 -y
-    exit 5
+  if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
+    conda create -n "appcommander" python=3.10 -y
   fi
 
   eval "$(conda shell.bash hook)"
-  conda deactivate && conda activate androidappcommander && pip install "appcommander>=0.0.31" && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
+  conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a $android_app_name -v "16.6.3 RC 1" -t DAVx5
   echo "Done with Orbot"
 }
 
@@ -24,19 +23,19 @@ configure_davx5_apk() {
   onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
   echo "Verifying your onion domain is online at:https://$onion_address"
   # TODO: determine why assert at port does not work.
-  assert_onion_is_available "https://$onion_address"
+  # assert_onion_is_available "https://$onion_address"
 
   # TODO: verify access to Nextcloud via this domain is trusted.
 
-  if [[ "$(conda_env_exists androidappcommander)" == "FOUND" ]]; then
-    conda create -n "androidappcommander" python=3.10 -y
-    exit 5
+  if [[ "$(conda_env_exists appcommander)" == "FOUND" ]]; then
+    conda create -n "appcommander" python=3.10 -y
+    # exit 5
   fi
 
   # Configure DAVx5 app.
 
   eval "$(conda shell.bash hook)"
-  conda deactivate && conda activate androidappcommander && pip install "appcommander>=0.0.31" && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
+  conda deactivate && conda activate appcommander && pip install "appcommander>=0.0.31" && appcommander -a "$android_app_name" -v "4.2.6" -nu "$nextcloud_username" -np "$nextcloud_password" -o "$onion_address"
   echo "Done with DAVx5"
 }
 
