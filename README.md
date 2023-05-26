@@ -37,6 +37,14 @@ src/main.sh \
   --verbose
 
 src/main.sh --calendar-server # Enable the Nextcloud Calendar application.
+
+# Install Calendar CLI and sync.
+src/main.sh --calendar-client \
+ --nextcloud-username root \
+ --external-nextcloud-port 7995 \
+ --nextcloud-password
+
+
 src/main.sh --android-reinstall Orbot,DAVx5
 src/main.sh --android-configure Orbot,DAVx5 \
   --nextcloud-username root \

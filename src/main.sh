@@ -12,6 +12,7 @@ source src/config/configure_khal.sh
 source src/config/configure_nextcloud.sh
 source src/config/configure_tor_for_nextcloud.sh
 source src/config/configure_vdirsyncer.sh
+source src/config/vdirsyncer_init_sync.sh
 source src/connectivity_checks.sh
 source src/helper.sh
 source src/install/install_android_apps.sh

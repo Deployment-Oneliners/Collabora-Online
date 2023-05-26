@@ -59,6 +59,9 @@ configure_calendar() {
   local calendar_client_flag="$1"
   local calendar_phone_flag="$2"
   local calendar_server_flag="$3"
+  local external_nextcloud_port="$4"
+  local nextcloud_password="$5"
+  local nextcloud_username="$6"
 
   verify_snap_installed "nextcloud"
 
@@ -73,16 +76,23 @@ configure_calendar() {
     # Install khal.
     ensure_apt_pkg "khal"
 
+    # Install torify
+    ensure_apt_pkg "torsocks"
+
     # Get the onion url for vdirsyncer.
     assert_onion_url_exists_in_hostname "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname"
     local onion_address
     onion_address=$(sudo cat "$NEXTCLOUD_HIDDEN_SERVICE_PATH/hostname")
 
     # Configure vdirsyncer.
-    create_vdirsyncer_config "$nextcloud_username" "$nextcloud_password" "$onion_address" "$VDIRSYNCER_CONFIG_FILENAME" "$VDIRSYNCER_CONFIG_PATH" "$VDIRSYNCER_CALENDAR_PATH" "$VDIRSYNCER_CONTACTS_PATH" "$VDIRSYNCER_STATUS_PATH" "$ROOT_CA_PEM_PATH"
+    create_vdirsyncer_config "$nextcloud_username" "$nextcloud_password" "$onion_address" "$VDIRSYNCER_CONFIG_FILENAME" "$VDIRSYNCER_CONFIG_PATH" "$VDIRSYNCER_CALENDAR_PATH" "$VDIRSYNCER_CONTACTS_PATH" "$VDIRSYNCER_STATUS_PATH" "$external_nextcloud_port"
 
     # Configure khal.
     create_khal_config "$KHAL_CONFIG_FILENAME" "$KHAL_CONFIG_PATH" "$VDIRSYNCER_CALENDAR_PATH" "$VDIRSYNCER_CONTACTS_PATH"
+
+    # Perform initial sync vdirsyncer.
+    vdirsyncer_initial_sync "$onion_address" "$external_nextcloud_port"
+
   fi
 
   if [ "$calendar_phone_flag" == "true" ]; then

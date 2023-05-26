@@ -131,7 +131,7 @@ parse_args() {
   setup_nextcloud "$configure_nextcloud_flag" "$local_http_nextcloud_port" "$local_https_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
   setup_tor_for_nextcloud "$configure_tor_for_nextcloud_flag" "$get_onion_flag" "$external_nextcloud_port" "$local_https_nextcloud_port" "$ssl_password"
 
-  configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag"
+  configure_calendar "$calendar_client_flag" "$calendar_phone_flag" "$calendar_server_flag" "$external_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
 
   reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"
   configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list" "$external_nextcloud_port"
