@@ -106,6 +106,8 @@ reinstall_android_apps() {
   local csv_app_list
   csv_app_list="$2"
 
+  ensure_apt_pkg "adb"
+
   if [ "$android_app_reinstall_flag" == "true" ]; then
     apps_are_supported "$csv_app_list"
     assert_phone_is_connected_via_adb

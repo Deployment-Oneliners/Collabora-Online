@@ -42,7 +42,6 @@ setup_admin_account_on_snap_nextcloud() {
   sudo systemctl start mysql.service
 
   # Set mysql pwd
-  read -p "Before change password"
   sudo mysql --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_password';"
 
   # Install and configure Nextcloud.

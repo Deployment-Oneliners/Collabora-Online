@@ -5,6 +5,7 @@
 source src/cli_usage.sh
 source src/arg_parser/arg_parser.sh
 source src/arg_parser/process_args.sh
+source src/arg_parser/process_uninstall_args.sh
 source src/GLOBAL_VARS.sh
 source src/cli_logger.sh
 source src/config/configure_android_apps.sh

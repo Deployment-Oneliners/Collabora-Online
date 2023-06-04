@@ -94,6 +94,14 @@ manual_assert_dir_exists() {
   fi
 }
 
+manual_assert_dir_not_exists() {
+  local dirpath="$1"
+  if [ -d "$dirpath" ]; then
+    echo "The dir: $dirpath does not exist, even though one would expect it does."
+    exit 31
+  fi
+}
+
 # Returns 0 if an array contains a string, 1 otherwise.
 # Case sensitive.
 # Allows for spaces

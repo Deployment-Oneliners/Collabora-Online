@@ -17,6 +17,7 @@ parse_args() {
   get_onion_flag='false'
   nextcloud_password_flag='false'
   uninstall_nextcloud_flag='false'
+  uninstall_calendar_client_flag='false'
 
   # $# gives the length/number of the incoming function arguments.
   # the shift command eats the first element of that array, making it shorter.
@@ -89,6 +90,10 @@ parse_args() {
         shift # past argument
         shift
         ;;
+      -ucc | --uninstall-calendar-client)
+        uninstall_calendar_client_flag='true'
+        shift # past argument
+        ;;
       -un | --uninstall-nextcloud)
         uninstall_nextcloud_flag='true'
         shift # past argument
@@ -137,4 +142,6 @@ parse_args() {
   configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list" "$external_nextcloud_port"
 
   uninstaller "$uninstall_nextcloud_flag"
+  uninstall_calendar_client "$uninstall_calendar_client_flag"
+
 }

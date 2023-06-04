@@ -12,12 +12,21 @@ One command to set up your self-hosted:
 No need to buy a domain name, no port-forwarding, no dns settings, no nothing.
 Tested (manually) on Ubuntu 22.10.
 
-## Usage
+## Usage - Khal
 
-The main code can be ran with:
+- The Nextcloud calendar can be visited at [https://localhost:`<your port>`](https://localhost:7995).
+- The Android calendar is used like you always use it, this just sets up the
+  sync with your own laptop/server in the background (over tor).
+- To use the CLI calendar type:
 
-```sh
-src/main.sh
+```bash
+khal interactive -a personal # Specify you want to edit calendar: "personal".
+```
+
+and after you are done adding/changing/deleting your calendar appointments, run:
+
+```bash
+vdirsyncer sync
 ```
 
 ## Example Setup
@@ -50,6 +59,12 @@ src/main.sh --android-configure Orbot,DAVx5 \
   --nextcloud-username root \
   --external-nextcloud-port 7995 \
   --nextcloud-password
+```
+
+## Uninstallation
+
+```bash
+src/main.sh --uninstall-calendar-client # Remove vdirsyncer and khal from client.
 ```
 
 ## Automatic Exponential Backups
