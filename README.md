@@ -31,8 +31,8 @@ src/main.sh \
   --configure-nextcloud \
   --configure-tor \
   --local-http-nextcloud-port 80 \
-  --local-https-nextcloud-port 443 \
-  --external-nextcloud-port 443 \
+  --local-https-nextcloud-port 7995 \
+  --external-nextcloud-port 7995 \
   --ssl-password somepassword \
   --verbose
 
