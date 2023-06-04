@@ -91,7 +91,7 @@ parse_args() {
         shift # past argument
         shift
         ;;
-        
+
       -tws | --taskwarrior-sync)
         taskwarrior_sync_flag='true'
         shift # past argument
@@ -147,7 +147,7 @@ parse_args() {
   reinstall_android_apps "$android_app_reinstall_flag" "$reinstall_app_list"
   configure_android_apps "$android_app_configure_flag" "$nextcloud_username" "$configure_app_list" "$external_nextcloud_port"
 
-  taskwarrior_sync "$taskwarrior_sync_flag" "$local_https_nextcloud_port" "$nextcloud_password"  "$nextcloud_username"
+  taskwarrior_sync "$taskwarrior_sync_flag" "$local_https_nextcloud_port" "$nextcloud_password" "$nextcloud_username"
 
   uninstaller "$uninstall_nextcloud_flag"
   uninstall_calendar_client "$uninstall_calendar_client_flag"
