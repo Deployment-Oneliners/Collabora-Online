@@ -53,7 +53,14 @@ src/main.sh --calendar-client \
  --external-nextcloud-port 7995 \
  --nextcloud-password
 
+# Install Taskwarrior sync
+src/main.sh --taskwarrior-sync \
+--local-https-nextcloud-port 7995 \
+--nextcloud-username root \
+--nextcloud-password
 
+
+# Setup Android phone sync.
 src/main.sh --android-reinstall Orbot,DAVx5
 src/main.sh --android-configure Orbot,DAVx5 \
   --nextcloud-username root \
